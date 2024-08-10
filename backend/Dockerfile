@@ -9,7 +9,7 @@ COPY requirements.txt .
 
 RUN apk update && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev python3-dev && \
-    apk add --no-cache goes gdal proj binutils postgresql-client && \
+    apk add --no-cache geos gdal proj binutils postgresql-client && \
     pip install --no-cache-dir -r requirements.txt && \
     apk del .build-deps
 
