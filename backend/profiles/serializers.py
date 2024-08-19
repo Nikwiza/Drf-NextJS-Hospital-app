@@ -16,6 +16,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('password', 
                   'email', 'name')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
         #TODO: maby add validation logic later
@@ -44,6 +45,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('password', 
                   'email', 'name')
+    extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
         #TODO: maby add validation logic later

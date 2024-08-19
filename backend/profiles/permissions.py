@@ -5,10 +5,14 @@ class IsSystemAdmin(BasePermission):
         if not request.user.is_authenticated:
             return False
         return request.user.is_admin
-
-#TODO: check if it's user
 class IsCompanyAdmin(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
         return request.user.is_company_admin
+
+class IsEmailConfirmed(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        return request.user.is_active
