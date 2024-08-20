@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'companies',
     'user',
     'profiles',
+    'equipment',
 ]
 
 MIDDLEWARE = [

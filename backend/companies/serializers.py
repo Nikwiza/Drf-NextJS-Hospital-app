@@ -1,9 +1,21 @@
+from equipment.serializers import EquipmentSerializer
+from .models import Company
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from .models import Companie
 
 
-class CompanySerializer(serializers.ModelSerializer):
+class CompanyFullSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Companie
-        fields = ('__all__')
+        model = Company
+        fields = '__all__'
+
+class CompanyProfileSerializer(serializers.ModelSerializer):
+    equipment = EquipmentSerializer(read_only=True, many=True)
+    class Meta:
+        model = Company
+        fields = ['name', 'description', 'address', 'average_rating', 'equipment']
+        
+class CompanyUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['name', 'description', 'address',]
+    
