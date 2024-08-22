@@ -14,4 +14,4 @@ class Company(models.Model):
     equipment = models.ManyToManyField(Equipment, related_name='equipment_list', blank=True)
 
     def __str__(self):
-        return self.name
+        return self.company_name

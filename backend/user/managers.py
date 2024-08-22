@@ -21,14 +21,11 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_("Admin must have is_admin=True."))
         return self.create_user(email, password, **extra_fields)
     
-    def create_company_admin(self, email, password, company_id, **extra_fields):
+    def create_company_admin(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_company_admin", True)
         extra_fields.setdefault("is_email_verified", False)
-        if not email:
-            raise ValueError(_("The email must be set"))
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
+        if extra_fields.get("is_company_admin") is not True:
+            raise ValueError(_("Company admin must have is_company_admin=True."))
+        return self.create_user(email, password, **extra_fields)
 
-        #TODO: Set company field
-
-        user.save()
-        return user
+        

@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from  user.models import Account
+from user.models import Account
 from user.managers import CustomUserManager
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from .models import CompanyAdministrator
+from companies.models import Company
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.CharField(
@@ -59,4 +61,31 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         )
         user.save()
 
+        return user
+    
+class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=Account.objects.all())]
+    )
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password])
+    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all(), write_only=True)
+
+    class Meta:
+        model = Account
+        fields = ('email', 'name', 'password', 'company')
+
+    def create(self, validated_data):
+        # Extract the company before creating the Account instance
+        company = validated_data.pop('company')
+        # Create the Account instance
+        user = Account.objects.create_company_admin(
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password']
+        )
+        # Now create the CompanyAdministrator instance
+        company_admin = CompanyAdministrator.objects.create(account=user, company=company)
+        company_admin.save()
         return user
