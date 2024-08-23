@@ -10,6 +10,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from rest_framework.generics import RetrieveAPIView
+from .serializers import AccountSerializer
+
 
 
 @api_view(['POST'])
@@ -50,4 +53,11 @@ def verify_email_confirm(request, uidb64, token):
         return Response({'detail': 'Email was confirmed!', 'redirect': 'home-page'}, status=status.HTTP_308_PERMANENT_REDIRECT)
     else:
         return Response({'detail': 'Invalid email!'}, status=status.HTTP_204_NO_CONTENT)
-        
+    
+    
+class AccountDetailView(RetrieveAPIView):
+    serializer_class = AccountSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
