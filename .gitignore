@@ -56,9 +56,11 @@ coverage.xml
 .python-version
 
 # Developers
-*.sw*
-manage.py
-.DS_Store
+# *.sw*
+# manage.py
+# .DS_Store
 
 # example database
 drf_example
+*.sqlite3
+backend/mydatabase
