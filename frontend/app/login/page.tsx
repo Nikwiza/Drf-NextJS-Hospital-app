@@ -52,11 +52,9 @@ const NextLoginPage = () => {
     }
   };
 
-  // if (sessionStatus === "loading") {
-  //   return <h1>Loading...</h1>;
-  // }
+
   return (
-        true && ( // sessionStatus !== "authenticated" && ( 
+        (user == null) && ( 
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="flex justify-center flex-col items-center">
           <Image src="/logo 1.png" alt="star logo" width={50} height={50} />
