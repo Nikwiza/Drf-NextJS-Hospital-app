@@ -13,7 +13,7 @@ import { useContext } from "react";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { logoutUser, user } = useContext(AuthContext);
+  const { logoutUser, user, userInfo } = useContext(AuthContext);
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -64,7 +64,7 @@ const Navbar = () => {
             ) : (
               <>
 
-                <span className="ml-10 text-sm">{user.email}</span>
+                <span className="ml-10 text-sm">{userInfo && userInfo!.email}</span>
 
                 <button
                   onClick={() => {
