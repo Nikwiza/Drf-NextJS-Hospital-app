@@ -1,18 +1,11 @@
 export type UserData = {
-	id: number;
-	firstName: string;
-	lastName: string;
 	email: string;
-	phone: string;
-	password: string;
-	role: string;
+	name: string;
+	last_login: Date;
+	is_admin: boolean;
+	is_company_admin:boolean;
+	is_email_verified:boolean;
 };
 
-export type UserDataPublic = {
-	id: UserData['id'];
-	firstName: UserData['firstName'];
-	lastName: UserData['lastName'];
-	email: UserData['email'];
-	phone: UserData['phone'];
-	role: UserData['role'];
-};
+// export type UserDataPublic = {
+// };
