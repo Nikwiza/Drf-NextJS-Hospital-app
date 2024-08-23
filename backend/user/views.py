@@ -55,9 +55,9 @@ def verify_email_confirm(request, uidb64, token):
         return Response({'detail': 'Invalid email!'}, status=status.HTTP_204_NO_CONTENT)
     
     
-class AccountDetailView(RetrieveAPIView):
-    serializer_class = AccountSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
+@api_view(['Get'])
+@permission_classes([IsAuthenticated])
+def getUserAccount(request):
+    user = request.user
+    serializer = AccountSerializer(user)
+    return Response(serializer.data)
