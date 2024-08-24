@@ -12,10 +12,10 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     equipment = EquipmentSerializer(read_only=True, many=True)
     class Meta:
         model = Company
-        fields = ['name', 'description', 'address', 'average_rating', 'equipment']
+        fields = ['company_name', 'description', 'address', 'average_rating', 'equipment']
         
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['name', 'description', 'address',]
+        fields = ['company_name', 'description', 'address',]
     
