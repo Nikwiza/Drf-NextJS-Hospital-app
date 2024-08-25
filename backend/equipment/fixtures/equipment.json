@@ -1,0 +1,52 @@
+[
+    {
+        "model": "equipment.equipment",
+        "pk": 1,
+        "fields": {
+            "equipment_name": "MRI Scanner",
+            "equipment_type": "Imaging",
+            "description": "A medical imaging device used in radiology to form pictures of the anatomy and physiological processes.",
+            "picture_url": "https://www.adventisthealthcare.com/app/files/public/2e3730f1-adb7-491f-bfb1-4a6dc4e5fa0d/Content%20Hub/MRI.png"
+        }
+    },
+    {
+        "model": "equipment.equipment",
+        "pk": 2,
+        "fields": {
+            "equipment_name": "Ultrasound Machine",
+            "equipment_type": "Imaging",
+            "description": "A device that uses high-frequency sound waves to create images of the inside of the body.",
+            "picture_url": "https://marketing.webassets.siemens-healthineers.com/68ed80d3472dc44c/85abf26f19eb/v/acfe416f82b1/siemens-healthineers-US-ACUSON-Origin.png"
+        }
+    },
+    {
+        "model": "equipment.equipment",
+        "pk": 3,
+        "fields": {
+            "equipment_name": "Ventilator",
+            "equipment_type": "Respiratory",
+            "description": "A machine that provides mechanical ventilation by moving breathable air in and out of the lungs.",
+            "picture_url": "https://ewmedico.com/wp-content/uploads/2020/03/S1100product.jpg"
+        }
+    },
+    {
+        "model": "equipment.equipment",
+        "pk": 4,
+        "fields": {
+            "equipment_name": "Defibrillator",
+            "equipment_type": "Emergency",
+            "description": "A device that delivers a dose of electric current to the heart in cases of life-threatening cardiac arrhythmias.",
+            "picture_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqFGof2nP-5c3Xaj_7z5nduz3FTdEhuv1g9A&s"
+        }
+    },
+    {
+        "model": "equipment.equipment",
+        "pk": 5,
+        "fields": {
+            "equipment_name": "X-ray Machine",
+            "equipment_type": "Imaging",
+            "description": "A machine that uses X-rays to view the internal structure of an object, especially the human body.",
+            "picture_url": "https://summitindustries.net/wp-content/uploads/2023/05/Summit-Industries-X-ray-Machines-Available.jpg"
+        }
+    }
+]

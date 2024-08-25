@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
-from .models import Company
-from .serializers import CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer
+from .models import Company, PickupSlot
+from .serializers import CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 
@@ -78,3 +78,30 @@ class RemoveEquipmentFromCompanyView(generics.DestroyAPIView):
         except Exception as e:
             print(f"Error during add equipment: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
+
+class PickupSlotListView(generics.ListCreateAPIView):
+    queryset = PickupSlot.objects.all()
+    serializer_class = PickupSlotSerializer
+        
+class CreatePickupSlotView(generics.CreateAPIView):
+    queryset = PickupSlot.objects.all()
+    serializer_class = PickupSlotSerializer
+
+    def perform_create(self, serializer):
+        administrator = self.request.user.companyadministrator
+        serializer.save(administrator=administrator, company=administrator.company)
+
+        return Response(serializer.data)
+
+class PickupSlotReserveView(generics.UpdateAPIView):
+    queryset = PickupSlot.objects.all()
+    serializer_class = PickupSlotSerializer
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.is_reserved:
+            return Response({"error": "Slot already reserved"}, status=400)
+
+        instance.is_reserved = True
+        instance.save()
+        return Response({"detail": "Slot reserved successfully"})

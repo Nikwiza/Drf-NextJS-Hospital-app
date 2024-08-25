@@ -1,5 +1,5 @@
 from equipment.serializers import EquipmentSerializer
-from .models import Company
+from .models import Company, PickupSlot
 from rest_framework import serializers
 
 
@@ -17,5 +17,11 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['company_name', 'description', 'address',]
+        fields = ['company_name', 'description', 'address']
+
+class PickupSlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PickupSlot
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved']
+        read_only_fields = ['administrator', 'company']
     
