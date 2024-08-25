@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from user.serializers import AccountSerializer
 from user.models import Account
 from user.managers import CustomUserManager
 from rest_framework.validators import UniqueValidator
@@ -89,3 +90,20 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
         company_admin = CompanyAdministrator.objects.create(account=user, company=company)
         company_admin.save()
         return user
+
+class CompanyAdministratorSerializer(serializers.ModelSerializer):
+    account = AccountSerializer()
+    class Meta:
+        model = CompanyAdministrator
+        fields = ['id', 'account', 'company']
+        
+    def update(self, instance, validated_data):
+        account_data = validated_data.pop('account', None)
+        account_serializer = self.fields['account']
+
+        # Update the Account instance
+        if account_data:
+            account_serializer.update(instance.account, account_data)
+
+        # Update the CompanyAdministrator instance
+        return super().update(instance, validated_data)

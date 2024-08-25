@@ -5,6 +5,8 @@ from .models import Company, PickupSlot
 from .serializers import CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
+from user.models import Account
+from user.serializers import ReservedUsersSerializer
 
 class CompanyListView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
@@ -105,3 +107,23 @@ class PickupSlotReserveView(generics.UpdateAPIView):
         instance.is_reserved = True
         instance.save()
         return Response({"detail": "Slot reserved successfully"})
+    
+class ReservedUsersListView(generics.ListAPIView):
+    serializer_class = ReservedUsersSerializer
+
+    def get_queryset(self):
+        company_id = self.kwargs['pk']     
+        try:
+            company = Company.objects.get(id=company_id)
+            pickup_slots = PickupSlot.objects.filter(company=company, is_reserved=True)
+            reserved_users = Account.objects.filter(id__in=[slot.administrator.account.id for slot in pickup_slots])
+            return reserved_users
+        except Company.DoesNotExist:
+            return Response({"error": "Company not found"}, status=404)
+        
+class WorkCalendarListView(generics.ListAPIView):
+    serializer_class = PickupSlotSerializer
+
+    def get_queryset(self):
+        company_id = self.kwargs['pk']
+        return PickupSlot.objects.filter(company_id=company_id).order_by('date', 'time')
