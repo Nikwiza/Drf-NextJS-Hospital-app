@@ -4,7 +4,7 @@ import "@/styles/globals.css";
 import { getServerSession } from "next-auth";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/app/Navbar"
-import Providers from "@/Providers";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +26,7 @@ export default async function RootLayout({
           <div className="mx-auto max-w-5xl text-2xl gap-2 mb-10">
             <AuthProvider>
               <Navbar />
+              <Toaster/>
               {children}
             </AuthProvider>
           </div>

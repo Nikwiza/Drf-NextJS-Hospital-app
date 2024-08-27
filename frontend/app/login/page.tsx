@@ -5,14 +5,21 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import AuthContext from "@/context/AuthContext";
+import { sendConfirmationEmail } from "@/services/Email";
+
 
 
 const NextLoginPage = () => {
   const router = useRouter();
-  const { loginUser, user } = useContext(AuthContext);
+  const { loginUser, user, userInfo } = useContext(AuthContext);
 
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (user != null && !userInfo?.is_email_verified) {
+      router.push("/confirm");
+    }
+  }, [user, router]);
 
 
   const isValidEmail = (email: string) => {
@@ -36,7 +43,7 @@ const NextLoginPage = () => {
       toast.error("Password is invalid");
       return;
     }
-    // console.log(email, password)
+  
     const res = await loginUser({
       email:email,
       password:password,
@@ -49,6 +56,19 @@ const NextLoginPage = () => {
     } else {
       setError("");
       toast.success("Successful login");
+      //Sanity check
+      // if(userInfo == null){
+      //   throw new Error("The user was not set!")
+      // }
+      if(!userInfo?.is_email_verified){
+        sendConfirmationEmail()
+        router.push("/confirm")
+      }
+      else{
+        router.push("/dashboard");
+      }
+      
+      
     }
   };
 

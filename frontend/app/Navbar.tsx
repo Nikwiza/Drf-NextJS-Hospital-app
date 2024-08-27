@@ -2,6 +2,7 @@
 import React from "react";
 import Link from "next/link";
 
+
 import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { FaBars } from "react-icons/fa";
@@ -9,7 +10,7 @@ import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
 import AuthContext from "@/context/AuthContext";
 import { useContext } from "react";
-
+import { redirect } from "next/navigation";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -66,14 +67,17 @@ const Navbar = () => {
 
                 <span className="ml-10 text-sm">{userInfo && userInfo!.email}</span>
 
-                <button
+                <Link
+                  href='/login'
                   onClick={() => {
                     logoutUser()
+                    setMobileMenuOpen(false)
+
                   }}
                   className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-gray-900"
                 >
                   Log out
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -108,14 +112,16 @@ const Navbar = () => {
               </Link>
 
               {(user != null) ? (
-                <button
+                <Link
+                  href='/login'
                   onClick={() => {
                     logoutUser()
+                    setMobileMenuOpen(false)
                   }}
                   className="ml-auto rounded-md bg-black border border-1 border-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   Log out
-                </button>
+                </Link>
               ) : (
                 <Link
                   href="/register"
