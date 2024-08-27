@@ -21,6 +21,7 @@ interface AuthContextType {
     authTokens: TokenType | null;
     loginUser: (formData: { email: string; password: string }) => Promise<LoginReturnType>;
     logoutUser: () => void;
+    updateUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,6 +32,9 @@ const AuthContext = createContext<AuthContextType>({
         throw new Error("loginUser must be used within an AuthProvider");
     },
     logoutUser: () => {
+        throw new Error("logoutUser must be used within an AuthProvider");
+    },
+    updateUser:() => {
         throw new Error("logoutUser must be used within an AuthProvider");
     }
 }) 
@@ -93,6 +97,7 @@ export const AuthProvider = ({children}:{ children: React.ReactNode }) =>{
     const logoutUser = () => {
         setAuthTokens(null)
         setUser(null)
+        setUserInfo(null)
         localStorage.removeItem('authTokens')
     }
 
@@ -123,14 +128,23 @@ export const AuthProvider = ({children}:{ children: React.ReactNode }) =>{
         }
     }
 
+    const updateUser = async () =>{
+        // await updateToken()
+        if (authTokens!.token){
+            throw new Error('There is no logged in user!')
+        }
+        fetchUserData(authTokens!.token!)
+        console.log(authTokens!.token!)
+    }
+
     const contextData = {
         userInfo:userInfo,
         user:user,
         authTokens:authTokens,
         loginUser:loginUser,
         logoutUser:logoutUser,
+        updateUser:updateUser
     }
-
 
 
     useEffect(()=> {

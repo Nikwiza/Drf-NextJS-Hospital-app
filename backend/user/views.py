@@ -40,7 +40,7 @@ def verify_email(request):
         return Response({'detail': 'Email was already confirmed!', 'redirect': 'home-page'}, status=status.HTTP_308_PERMANENT_REDIRECT)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def verify_email_confirm(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))

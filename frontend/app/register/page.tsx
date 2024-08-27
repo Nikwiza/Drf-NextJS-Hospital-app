@@ -7,12 +7,14 @@ import AuthContext from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { useContext } from "react";
 
+
 const RegisterPage = () => {
   const [error, setError] = useState("");
   const router = useRouter();
   const { user } = useContext(AuthContext)
 
 
+  //This is used to redirect and router.push is used to push to a page
   useEffect(() => {
     if (user != null) {
       router.replace("/dashboard");
