@@ -13,6 +13,7 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
   });
 
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   const handleFieldSubmit = async (fieldName: string) => {
     try {
@@ -41,6 +42,10 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
 
       const responseData = await response.json();
 
+      if (response.status === 401) {
+        setUnauthorized(true);
+        return;
+      }
       if (response.ok) {
         setUpdateStatus(`success-${fieldName}`);
         console.log(`Company ${fieldName} updated successfully!`);
@@ -57,6 +62,10 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
     const { name, value } = e.target;
     setCompanyInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
   };
+
+  if (unauthorized) {
+    return <div>You are not authorized to update company profile.</div>;
+  }
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-slate-700 rounded-lg shadow-md">

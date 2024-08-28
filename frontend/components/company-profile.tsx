@@ -5,6 +5,15 @@ import "@/styles/globals.css";
 import CompanyEquipment from './company-equipment';
 import { useContext } from 'react';
 import AuthContext from '@/context/AuthContext';
+import dynamic from 'next/dynamic';
+import 'leaflet/dist/leaflet.css';
+import { LatLngTuple } from 'leaflet';
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+
+
 
 interface Equipment {
   id: number;
@@ -18,12 +27,18 @@ interface Company {
   address: string;
   description: string;
   average_rating: number;
+  latitude: number;
+  longitude: number;
   equipment: Equipment[];
 }
+
+
 
 const CompanyProfile: React.FC = () => {
   const router = useRouter();
   const [company, setCompany] = useState<Company | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
+  const [position, setPosition] = useState<LatLngTuple | null>(null);
   //const {authTokens} = useContext(AuthContext);
 
   useEffect(() => {
@@ -54,9 +69,16 @@ const CompanyProfile: React.FC = () => {
               }
             }
           );
+          if (response.status === 401) {
+            setUnauthorized(true);
+            return;
+          }
           if (response.ok) {
             const data: Company = await response.json();
             setCompany(data);
+            if (data.latitude && data.longitude) {
+              setPosition([data.latitude, data.longitude]);
+            }
           } else {
             console.error('Failed to fetch company');
           }
@@ -69,6 +91,10 @@ const CompanyProfile: React.FC = () => {
     }
   }, [router.query]);
 
+  if (unauthorized) {
+    return <div>You are not authorized to view this company profile.</div>;
+  }
+  
   if (!company) {
     return <div>Loading company profile...</div>;
   }
@@ -88,6 +114,23 @@ const CompanyProfile: React.FC = () => {
         <span className="font-bold text-gray-300">Average rating:</span>{' '}
         {company.average_rating}
       </p>
+
+      <div className="my-4">
+        {position && (
+          <MapContainer center={position} zoom={15} scrollWheelZoom={false} style={{ height: "400px", width: "100%" }}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={position}>
+              <Popup>
+                {company.company_name} <br /> {company.address}
+              </Popup>
+            </Marker>
+          </MapContainer>
+        )}
+      </div>
+
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
         {company.equipment.length > 0 ? (

@@ -17,6 +17,7 @@ const EquipmentList: React.FC = () => {
   const [searchTerm1, setSearchTerm1] = useState('');
   const [searchTerm2, setSearchTerm2] = useState('');
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
     console.log("Owned Equipment List:", ownedEquipmentList);
@@ -54,6 +55,12 @@ const EquipmentList: React.FC = () => {
           'Content-Type': 'application/json',
         }
       });
+
+      if(allEquipmentResponse.status === 401 || ownedEquipmentResponse.status === 401){
+        setUnauthorized(true);
+        return;
+      }
+
       if (allEquipmentResponse.ok && ownedEquipmentResponse.ok) {
         const allEquipmentData: Equipment[] = await allEquipmentResponse.json();
         const ownedEquipmentData: Equipment[] = await ownedEquipmentResponse.json();
@@ -150,6 +157,10 @@ const EquipmentList: React.FC = () => {
   const filteredUnownedEquipment = unownedEquipmentList.filter((equipment) =>
     equipment.equipment_name?.toLowerCase().includes(searchTerm2.toLowerCase())
   );
+
+  if (unauthorized) {
+    return <div>You are not authorized to change company's equipment.</div>;
+  }
 
   return (
     <div>
