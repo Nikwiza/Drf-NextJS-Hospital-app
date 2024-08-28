@@ -5,7 +5,7 @@ import "@/styles/globals.css";
 
 interface Equipment {
   id: number;
-  name: string;
+  equipment_name: string;
   description: string;
   picture_url: string;
 }
@@ -18,11 +18,42 @@ const EquipmentList: React.FC = () => {
   const [searchTerm2, setSearchTerm2] = useState('');
   const [companyId, setCompanyId] = useState<string | null>(null);
 
+  useEffect(() => {
+    console.log("Owned Equipment List:", ownedEquipmentList);
+    console.log("Unowned Equipment List:", unownedEquipmentList);
+  }, [ownedEquipmentList, unownedEquipmentList]);
+
   const fetchEquipmentList = async () => {
     try {
+      const authTokens = localStorage.getItem('authTokens');
+      if (!authTokens) {
+        throw new Error("Tokens were not returned from backend!");
+      }
+    
+      let authTokensJson;
+      try {
+          authTokensJson = JSON.parse(authTokens);
+      } catch (error) {
+          throw new Error("Tokens cannot be parsed");
+      }
+      if (!authTokensJson?.access) {
+        throw new Error("Access token is missing");
+      }
       const fetchedCompanyId = router.query.id as string;
-      const allEquipmentResponse = await fetch(`http://127.0.0.1:8000/equipment/`);
-      const ownedEquipmentResponse = await fetch(`http://127.0.0.1:8000/company/owned-equipment/${fetchedCompanyId}/`);
+      const allEquipmentResponse = await fetch(`http://localhost:8000/equipment/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      const ownedEquipmentResponse = await fetch(`http://localhost:8000/company/owned-equipment/${fetchedCompanyId}/` , {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
+          'Content-Type': 'application/json',
+        }
+      });
       if (allEquipmentResponse.ok && ownedEquipmentResponse.ok) {
         const allEquipmentData: Equipment[] = await allEquipmentResponse.json();
         const ownedEquipmentData: Equipment[] = await ownedEquipmentResponse.json();
@@ -46,9 +77,24 @@ const EquipmentList: React.FC = () => {
 
   const handleAddEquipment = async (equipmentId: number) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/company/add-equipment/${companyId}/${equipmentId}/`, {
-        method: 'PUT',
+      const authTokens = localStorage.getItem('authTokens');
+      if (!authTokens) {
+        throw new Error("Tokens were not returned from backend!");
+      }
+    
+      let authTokensJson;
+      try {
+          authTokensJson = JSON.parse(authTokens);
+      } catch (error) {
+          throw new Error("Tokens cannot be parsed");
+      }
+      if (!authTokensJson?.access) {
+        throw new Error("Access token is missing");
+      }
+      const response = await fetch(`http://localhost:8000/company/add-equipment/${companyId}/${equipmentId}/`, {
+        method: 'PATCH',
         headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
           'Content-Type': 'application/json',
         },
       });
@@ -65,9 +111,24 @@ const EquipmentList: React.FC = () => {
 
   const handleRemoveEquipment = async (equipmentId: number) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/company/remove-equipment/${companyId}/${equipmentId}/`, {
+      const authTokens = localStorage.getItem('authTokens');
+      if (!authTokens) {
+        throw new Error("Tokens were not returned from backend!");
+      }
+    
+      let authTokensJson;
+      try {
+          authTokensJson = JSON.parse(authTokens);
+      } catch (error) {
+          throw new Error("Tokens cannot be parsed");
+      }
+      if (!authTokensJson?.access) {
+        throw new Error("Access token is missing");
+      }
+      const response = await fetch(`http://localhost:8000/company/remove-equipment/${companyId}/${equipmentId}/`, {
         method: 'DELETE',
         headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
           'Content-Type': 'application/json',
         },
       });
@@ -83,11 +144,11 @@ const EquipmentList: React.FC = () => {
   };
 
   const filteredOwnedEquipment = ownedEquipmentList.filter((equipment) =>
-    equipment.name.toLowerCase().includes(searchTerm1.toLowerCase())
+    equipment.equipment_name?.toLowerCase().includes(searchTerm1.toLowerCase())
   );
 
   const filteredUnownedEquipment = unownedEquipmentList.filter((equipment) =>
-    equipment.name.toLowerCase().includes(searchTerm2.toLowerCase())
+    equipment.equipment_name?.toLowerCase().includes(searchTerm2.toLowerCase())
   );
 
   return (
@@ -113,9 +174,9 @@ const EquipmentList: React.FC = () => {
                   key={equipment.id}
                   className="w-64 h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md"
                 >
-                  <h3 className="text-xl font-bold mb-2 text-white">{equipment.name}</h3>
+                  <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
                   <p className="text-white mb-2">Description: {equipment.description}</p>
-                  <img src={equipment.picture_url} alt={equipment.name} className="w-full h-auto" />
+                  <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-full h-auto" />
                   <button
                     className="text-white bg-red-600 px-2 py-1 mt-2 rounded-md"
                     onClick={() => handleRemoveEquipment(equipment.id)}
@@ -139,9 +200,9 @@ const EquipmentList: React.FC = () => {
                   key={equipment.id}
                   className="w-64 h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md"
                 >
-                  <h3 className="text-xl font-bold mb-2 text-white">{equipment.name}</h3>
+                  <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
                   <p className="text-white mb-2">Description: {equipment.description}</p>
-                  <img src={equipment.picture_url} alt={equipment.name} className="w-full h-auto" />
+                  <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-full h-auto" />
                   <button
                     className="text-white bg-blue-600 px-2 py-1 mt-2 rounded-md"
                     onClick={() => handleAddEquipment(equipment.id)}

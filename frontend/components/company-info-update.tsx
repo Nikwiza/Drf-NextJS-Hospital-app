@@ -7,7 +7,7 @@ interface CompanyUpdateFormProps {
 
 const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
   const [companyInfo, setCompanyInfo] = useState<{ [key: string]: string }>({
-    name: '',
+    company_name: '',
     description: '',
     address: '',
   });
@@ -16,9 +16,24 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
 
   const handleFieldSubmit = async (fieldName: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/company/update/${companyId}/`, {
+      const authTokens = localStorage.getItem('authTokens');
+      if (!authTokens) {
+        throw new Error("Tokens were not returned from backend!");
+      }
+    
+      let authTokensJson;
+      try {
+          authTokensJson = JSON.parse(authTokens);
+      } catch (error) {
+          throw new Error("Tokens cannot be parsed");
+      }
+      if (!authTokensJson?.access) {
+        throw new Error("Access token is missing");
+      }
+      const response = await fetch(`http://localhost:8000/company/update/${companyId}/`, {
         method: 'PATCH',
         headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ [fieldName]: companyInfo[fieldName] }),
@@ -46,7 +61,7 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-slate-700 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4 text-white">Update Company Information</h1>
-      {updateStatus === "success-name" && (
+      {updateStatus === "success-company_name" && (
         <div className="mb-4 text-green-600">
           Name edited successfully!
         </div>
@@ -68,21 +83,21 @@ const CompanyUpdateForm: React.FC<CompanyUpdateFormProps> = ({ companyId }) => {
       )}
       <form>
         <div className="mb-4">
-          <label htmlFor="name" className="block text-white font-bold mb-2">
+          <label htmlFor="company_name" className="block text-white font-bold mb-2">
             Company Name
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={companyInfo.name}
+            id="company_name"
+            name="company_name"
+            value={companyInfo.company_name}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
             required
           />
           <button
             type="button"
-            onClick={() => handleFieldSubmit("name")}
+            onClick={() => handleFieldSubmit("company_name")}
             className="mt-1 bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 focus:outline-none focus:bg-yellow-800"
           >
             Edit Name

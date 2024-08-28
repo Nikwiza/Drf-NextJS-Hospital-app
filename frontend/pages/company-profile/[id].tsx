@@ -1,5 +1,6 @@
 'use client'
 import CompanyProfile from "@/components/company-profile";
+import Navbar from "@/app/Navbar";
 import "@/styles/globals.css";
 
 const CompanyProfilePage = () => {
