@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from equipment.models import Equipment
 from profiles.models import CompanyAdministrator
+from datetime import datetime
+from django.utils import timezone
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
@@ -24,6 +26,14 @@ class PickupSlot(models.Model):
     time = models.TimeField()
     duration = models.DurationField()
     is_reserved = models.BooleanField(default=False)
+    is_expired = models.BooleanField(default=False)
+
+    def update_expiration_status(self):
+        slot_datetime_naive = datetime.combine(self.date, self.time)
+        slot_datetime_aware = timezone.make_aware(slot_datetime_naive, timezone.get_current_timezone())
+        current_datetime = timezone.now()
+        self.is_expired = slot_datetime_aware < current_datetime
+        self.save()
 
     def __str__(self):
         return f"{self.administrator.account.name} - {self.date} at {self.time}"

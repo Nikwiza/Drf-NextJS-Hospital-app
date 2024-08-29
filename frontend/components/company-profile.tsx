@@ -22,6 +22,14 @@ interface Equipment {
   picture_url: string;
 }
 
+interface PickupSlot {
+  id: number;
+  date: string;
+  time: string;
+  duration: string;
+  administrator_name: string;
+}
+
 interface Company {
   company_name: string;
   address: string;
@@ -30,9 +38,9 @@ interface Company {
   latitude: number;
   longitude: number;
   equipment: Equipment[];
+  pickup_slots: PickupSlot[];
+
 }
-
-
 
 const CompanyProfile: React.FC = () => {
   const router = useRouter();
@@ -139,6 +147,20 @@ const CompanyProfile: React.FC = () => {
           ))
         ) : (
           <p className="text-white">No elements available.</p>
+        )}
+      </div>
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-300">Available Pickup Slots</h2>
+        {company.pickup_slots && company.pickup_slots.length > 0 ? (
+          <ul className="list-disc list-inside text-white">
+            {company.pickup_slots.map((slot) => (
+              <li key={slot.id}>
+                {slot.date} at {slot.time} for {slot.duration} - {slot.administrator_name}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-white">No available pickup slots.</p>
         )}
       </div>
     </div>

@@ -12,12 +12,13 @@ class CompanyFullSerializer(serializers.ModelSerializer):
 
 class CompanyProfileSerializer(serializers.ModelSerializer):
     equipment = EquipmentSerializer(read_only=True, many=True)
+    pickup_slots = serializers.SerializerMethodField()
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
 
     class Meta:
         model = Company
-        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'equipment']
+        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'equipment', 'pickup_slots']
 
     def get_latitude(self, obj):
         return self.get_lat_lng(obj.address)[0]
@@ -37,6 +38,10 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(f"Error during geocoding: {e}")
             return None, None
+    
+    def get_pickup_slots(self, obj):
+        unreserved_slots = PickupSlot.objects.filter(company=obj, is_reserved=False, is_expired=False)
+        return PickupSlotSerializer(unreserved_slots, many=True).data
         
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,8 +49,18 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
         fields = ['company_name', 'description', 'address']
 
 class PickupSlotSerializer(serializers.ModelSerializer):
+    administrator_name = serializers.SerializerMethodField()
+    is_expired = serializers.SerializerMethodField()
+
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved']
-        read_only_fields = ['administrator', 'company']
+        fields = ['id', 'administrator_name', 'company', 'date', 'time', 'duration', 'is_reserved', 'is_expired']
+        read_only_fields = ['administrator_name', 'company']
+
+    def get_administrator_name(self, obj):
+        return obj.administrator.account.name
+    
+    def get_is_expired(self, obj):
+        obj.update_expiration_status()
+        return obj.is_expired
     
