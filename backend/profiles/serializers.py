@@ -107,3 +107,4 @@ class CompanyAdministratorSerializer(serializers.ModelSerializer):
 
         # Update the CompanyAdministrator instance
         return super().update(instance, validated_data)
+    

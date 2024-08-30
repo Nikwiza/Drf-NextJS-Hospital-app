@@ -1,7 +1,9 @@
+from profiles.models import CompanyAdministrator
 from equipment.serializers import EquipmentSerializer
 from .models import Company, PickupSlot
 from rest_framework import serializers
 from geopy.geocoders import Nominatim
+from profiles.serializers import CompanyAdministratorSerializer
 
 
 
@@ -15,10 +17,11 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     pickup_slots = serializers.SerializerMethodField()
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
+    administrators = serializers.SerializerMethodField()
 
     class Meta:
         model = Company
-        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'equipment', 'pickup_slots']
+        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'equipment', 'pickup_slots', 'administrators']
 
     def get_latitude(self, obj):
         return self.get_lat_lng(obj.address)[0]
@@ -42,6 +45,10 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     def get_pickup_slots(self, obj):
         unreserved_slots = PickupSlot.objects.filter(company=obj, is_reserved=False, is_expired=False)
         return PickupSlotSerializer(unreserved_slots, many=True).data
+    
+    def get_administrators(self, obj):
+        administrators = CompanyAdministrator.objects.filter(company=obj)
+        return CompanyAdministratorSerializer(administrators, many=True).data
         
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
