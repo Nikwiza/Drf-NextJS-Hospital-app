@@ -6,4 +6,5 @@ urlpatterns = [
     path('register-admin', createAdminAccount),
     path('register-company-admin', createCompanyAdminAccount),
     path('update-company-admin/', CompanyAdminProfileView.as_view(), name='update-company-admin'), 
+    path('authenticated-company-admin/', CompanyAdminProfileView.as_view(), name='get-company-admin'),
 ]

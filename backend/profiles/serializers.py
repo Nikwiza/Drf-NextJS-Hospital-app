@@ -93,9 +93,11 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
 
 class CompanyAdministratorSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
+    company_name = serializers.SerializerMethodField()
+    company_id = serializers.SerializerMethodField()
     class Meta:
         model = CompanyAdministrator
-        fields = ['id', 'account', 'company']
+        fields = ['id', 'account', 'company_name', 'company_id']
         
     def update(self, instance, validated_data):
         account_data = validated_data.pop('account', None)
@@ -107,4 +109,10 @@ class CompanyAdministratorSerializer(serializers.ModelSerializer):
 
         # Update the CompanyAdministrator instance
         return super().update(instance, validated_data)
+    
+    def get_company_id(self, obj):
+        return obj.company.id
+    
+    def get_company_name(self, obj):
+        return obj.company.company_name
     

@@ -37,9 +37,13 @@ def createCompanyAdminAccount(request):
     else:
         return JsonResponse(status=status.HTTP_422_UNPROCESSABLE_ENTITY, data=serializer.errors)
     
-class CompanyAdminProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = CompanyAdministratorSerializer
 
+class CompanyAdminProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes=[IsAuthenticated]
+    serializer_class = CompanyAdministratorSerializer
+    
     def get_object(self):
         return self.request.user.companyadministrator
+    
+
     
