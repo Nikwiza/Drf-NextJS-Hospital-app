@@ -1,18 +1,18 @@
 [
     {
-      "model": "companies.Companie",
+      "model": "companies.Company",
       "pk": 1,
       "fields": {
-        "companie_name": "Companie1",
-        "description": "This is description of Companie 1"
+        "company_name": "Company1",
+        "description": "This is description of Company 1"
       }
     },
     {
-      "model": "companies.Companie",
+      "model": "companies.Company",
       "pk": 2,
       "fields": {
-        "companie_name": "Companie2",
-        "description": "This is description of Companie 2"
+        "company_name": "Company2",
+        "description": "This is description of Company 2"
       }
     }
   ]

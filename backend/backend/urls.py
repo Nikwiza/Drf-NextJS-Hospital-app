@@ -26,7 +26,10 @@ urlpatterns = [
     path('account/', include('profiles.urls')),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
-    path('user/', include('user.urls'))
+    path('user/', include('user.urls')),
+    path('company/', include('companies.urls')),
+    path('appointment/', include('appointments.urls')),
+    path('equipment/', include('equipment.urls'))
 ]
 
 if settings.DEBUG:
