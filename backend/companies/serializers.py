@@ -63,13 +63,13 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
         fields = ['company_name', 'description', 'address']
 
 class PickupSlotSerializer(serializers.ModelSerializer):
-    administrator = CompanyAdministratorSerializer
+    administrator = CompanyAdministratorSerializer()
     is_expired = serializers.SerializerMethodField()
 
     class Meta:
         model = PickupSlot
         fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved', 'is_expired']
-        read_only_fields = ['administrator_name', 'company']
+        read_only_fields = ['company']
     
     def get_is_expired(self, obj):
         obj.update_expiration_status()

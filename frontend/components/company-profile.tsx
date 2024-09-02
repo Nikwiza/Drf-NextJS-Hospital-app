@@ -30,7 +30,7 @@ interface PickupSlot {
   date: string;
   time: string;
   duration: string;
-  administrator_name: string;
+  administrator: CompanyAdministrator;
 }
 
 interface Account {
@@ -65,7 +65,6 @@ const CompanyProfile: React.FC = () => {
   const [unauthorized, setUnauthorized] = useState(false);
   const [position, setPosition] = useState<LatLngTuple | null>(null);
   const [L, setL] = useState<any>(null);
-  const [currentUser, setCurrentUser] = useState<Account | null>(null);
   const [isCompanyAdmin, setIsCompanyAdmin] = useState(false);
   const [showPickupSlotForm, setShowPickupSlotForm] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<string | null>(null);
@@ -181,7 +180,6 @@ const CompanyProfile: React.FC = () => {
           const currentUserData: Account = await userResponse.json();
 
           setCompany(companyData);
-          setCurrentUser(currentUserData);
           setPosition([companyData.latitude, companyData.longitude]);
 
           const isAdmin = companyData.administrators.some(
@@ -251,7 +249,7 @@ const CompanyProfile: React.FC = () => {
               <ul className="list-disc list-inside text-white">
                 {company.pickup_slots.map((slot) => (
                   <li key={slot.id}>
-                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator_name}
+                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator.account.name}
                   </li>
                 ))}
               </ul>
@@ -279,6 +277,13 @@ const CompanyProfile: React.FC = () => {
               onClick={() => router.push(`/company-equipment/${company.id}`)} 
               className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
               Update Company Equipment
+            </button>
+          </div>
+          <div className='mb-4'>
+            <button
+            onClick={() => router.push(`/update-company/${company.id}`)}
+            className='bg-blue-500 text-white font-bold py-2 px-4 rounded'>
+              Edit Company Info
             </button>
           </div>
           <div className='mb-8'>
