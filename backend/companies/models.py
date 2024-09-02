@@ -14,7 +14,6 @@ class Company(models.Model):
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(5.00)]
     )
-    equipment = models.ManyToManyField(Equipment, related_name='equipment_list', blank=True)
 
     def __str__(self):
         return self.company_name
@@ -37,3 +36,14 @@ class PickupSlot(models.Model):
 
     def __str__(self):
         return f"{self.administrator.account.name} - {self.date} at {self.time}"
+
+class CompanyEquipment(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_equipments')
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('company', 'equipment')
+
+    def __str__(self):
+        return f"{self.company.name} - {self.equipment.name} (Quantity: {self.quantity})"

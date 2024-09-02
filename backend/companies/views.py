@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
-from .models import Company, PickupSlot
-from .serializers import CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer
+from .models import Company, CompanyEquipment, PickupSlot
+from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 from user.models import Account
@@ -35,50 +35,60 @@ class CompanyUpdateView(generics.RetrieveUpdateAPIView):
             return Response({"error": "Internal Server Error"}, status=500)
 
 class EquipmentListView(generics.ListAPIView):
-    serializer_class = EquipmentSerializer
+    serializer_class = CompanyEquipmentSerializer
 
     def get_queryset(self):
         company_id = self.kwargs['pk']
         try:
-            company = Company.objects.get(id=company_id)
-            equipment_list = company.equipment.all()
-            return equipment_list
+            company_equipments = CompanyEquipment.objects.filter(company_id=company_id)
+            return company_equipments
         except Company.DoesNotExist:
             return Equipment.objects.none()
         
 class AddEquipmentToCompanyView(generics.UpdateAPIView):
-    serializer_class = CompanyFullSerializer
-
     def update(self, request, *args, **kwargs):
         company_id = kwargs.get('company_pk')
         equipment_id = kwargs.get('equipment_pk')
+        quantity = request.data.get('quantity', 1)
+
         try:
             company = Company.objects.get(pk=company_id)
             equipment = Equipment.objects.get(pk=equipment_id)
-            company.equipment.add(equipment)
+
+            company_equipment, created = CompanyEquipment.objects.get_or_create(
+                company=company, equipment=equipment,
+                defaults={'quantity': quantity}
+            )
+            if not created:
+                company_equipment.quantity += quantity
+                company_equipment.save()
+
             return Response({"detail": "Equipment added successfully"})
         except Company.DoesNotExist or Equipment.DoesNotExist:
-            return Response({"error": "Company or Equipments not found"}, status=404)
+            return Response({"error": "Company or Equipment not found"}, status=404)
         except Exception as e:
             print(f"Error during add equipment: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
         
 class RemoveEquipmentFromCompanyView(generics.DestroyAPIView):
-    serializer_class = CompanyFullSerializer
-
     def destroy(self, request, *args, **kwargs):
-        company_id = kwargs.get('company_pk')
-        equipment_id = kwargs.get('equipment_pk')
+        company_equipment_id = kwargs.get('equipment_pk') 
+        quantity_to_remove = request.data.get('quantity', 1)
 
         try:
-            company = Company.objects.get(pk = company_id)
-            equipment = Equipment.objects.get(pk = equipment_id)
-            company.equipment.remove(equipment)
+            company_equipment = CompanyEquipment.objects.get(pk=company_equipment_id)
+
+            if company_equipment.quantity > quantity_to_remove:
+                company_equipment.quantity -= quantity_to_remove
+                company_equipment.save()
+            else:
+                company_equipment.delete()
+
             return Response({"detail": "Equipment removed successfully"})
-        except Company.DoesNotExist or Equipment.DoesNotExist:
-            return Response({"error": "Company or Equipments not found"}, status=404)
+        except (CompanyEquipment.DoesNotExist):
+            return Response({"error": "CompanyEquipment not found"}, status=404)
         except Exception as e:
-            print(f"Error during add equipment: {e}")
+            print(f"Error during remove equipment: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
 
 class PickupSlotListView(generics.ListCreateAPIView):
@@ -127,3 +137,7 @@ class WorkCalendarListView(generics.ListAPIView):
     def get_queryset(self):
         company_id = self.kwargs['pk']
         return PickupSlot.objects.filter(company_id=company_id).order_by('date', 'time')
+    
+class CompanyEquipmentViewSet(generics.ListCreateAPIView):
+    queryset = CompanyEquipment.objects.all()
+    serializer_class = CompanyEquipmentSerializer

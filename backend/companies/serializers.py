@@ -1,6 +1,6 @@
 from profiles.models import CompanyAdministrator
 from equipment.serializers import EquipmentSerializer
-from .models import Company, PickupSlot
+from .models import Company, CompanyEquipment, PickupSlot
 from rest_framework import serializers
 from geopy.geocoders import Nominatim
 from profiles.serializers import CompanyAdministratorSerializer
@@ -12,8 +12,15 @@ class CompanyFullSerializer(serializers.ModelSerializer):
         model = Company
         fields = '__all__'
 
+class CompanyEquipmentSerializer(serializers.ModelSerializer):
+    equipment = EquipmentSerializer()
+    
+    class Meta:
+        model = CompanyEquipment
+        fields = ['id', 'equipment', 'quantity']
+
 class CompanyProfileSerializer(serializers.ModelSerializer):
-    equipment = EquipmentSerializer(read_only=True, many=True)
+    equipment = CompanyEquipmentSerializer(source='company_equipments', many=True, read_only=True)
     pickup_slots = serializers.SerializerMethodField()
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
@@ -70,4 +77,8 @@ class PickupSlotSerializer(serializers.ModelSerializer):
     def get_is_expired(self, obj):
         obj.update_expiration_status()
         return obj.is_expired
+    
+
+    
+
     

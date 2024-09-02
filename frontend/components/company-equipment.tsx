@@ -1,27 +1,31 @@
 'use client'
 import React from 'react';
 
-interface Equipment {
+interface CompanyEquipment {
   id: number;
-  equipment_name: string;
-  description: string;
-  picture_url: string;
+  equipment: {
+    equipment_name: string;
+    description: string;
+    picture_url: string;
+  }
+  quantity: Number;
 }
 
 interface CompanyEquipmentProps {
-  equipment: Equipment;
+  equipment: CompanyEquipment
 }
 
-const CompanyEquipment: React.FC<CompanyEquipmentProps> = ({ equipment }) => {
+const CompanyEquip: React.FC<CompanyEquipmentProps> = ({ equipment } : CompanyEquipmentProps) => {
   console.log('Equipment: ', equipment);
 
   return (
-    <div className="border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md">
-      <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
-      <p className="text-white mb-2">Description: {equipment.description}</p>
-      <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-full h-auto" />
+    <div className="border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
+      <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment.equipment_name}</h3>
+      <p className="text-white mb-2 w-80">Description: {equipment.equipment.description}</p>
+      <img src={equipment.equipment.picture_url} alt={equipment.equipment.equipment_name} className="w-80 h-auto" />
+      <p className="text-white mb-2">Quantity: {equipment.quantity.toString()}</p>
     </div>
   );
 };
 
-export default CompanyEquipment;
+export default CompanyEquip;

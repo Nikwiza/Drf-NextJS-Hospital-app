@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import "@/styles/globals.css";
-import CompanyEquipment from './company-equipment';
+import CompanyEquip from './company-equipment';
 import { useContext } from 'react';
 import AuthContext from '@/context/AuthContext';
 import dynamic from 'next/dynamic';
@@ -16,13 +16,14 @@ const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLaye
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 
-
-
-interface Equipment {
+interface CompanyEquipment {
   id: number;
-  equipment_name: string;
-  description: string;
-  picture_url: string;
+  equipment: {
+    equipment_name: string;
+    description: string;
+    picture_url: string;
+  }
+  quantity: Number;
 }
 
 interface PickupSlot {
@@ -42,13 +43,14 @@ interface CompanyAdministrator {
 }
 
 interface Company {
+  id: number;
   company_name: string;
   address: string;
   description: string;
   average_rating: number;
   latitude: number;
   longitude: number;
-  equipment: Equipment[];
+  equipment: CompanyEquipment[];
   pickup_slots: PickupSlot[];
   administrators: CompanyAdministrator[];
 }
@@ -59,7 +61,6 @@ const CompanyProfile: React.FC = () => {
   const [unauthorized, setUnauthorized] = useState(false);
   const [position, setPosition] = useState<LatLngTuple | null>(null);
   const [L, setL] = useState<any>(null);
-  //const {authTokens} = useContext(AuthContext);
 
   useEffect(() => {
     if (router.query && router.query.id) {
@@ -141,7 +142,6 @@ const CompanyProfile: React.FC = () => {
     <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
       <h1 className="text-4xl font-bold mb-6 text-white text-center">{company.company_name}</h1>
       <div className="grid grid-cols-2 gap-8">
-        {/* Left Column */}
         <div>
           <p className="mb-4 text-white">
             <span className="font-bold text-gray-300">Address:</span> {company.address}
@@ -196,13 +196,21 @@ const CompanyProfile: React.FC = () => {
             )}
           </div>
 
+          <div className="mb-8">
+            <button 
+              onClick={() => router.push(`/company-equipment/${company.id}`)} 
+              className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+            >
+              Update Equipment
+            </button>
+          </div>
         </div>
         <div>
           <div>
             <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
-            {company.equipment.length > 0 ? (
+            {company.equipment && company.equipment.length > 0 ? (
               company.equipment.map((equipment) => (
-                <CompanyEquipment key={equipment.id} equipment={equipment} />
+                <CompanyEquip key={equipment.id} equipment={equipment} />
               ))
             ) : (
               <p className="text-white">No elements available.</p>
