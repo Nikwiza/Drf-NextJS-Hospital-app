@@ -44,7 +44,12 @@ interface CompanyAdministrator {
   account: Account;
 }
 
-
+interface BusinessHours {
+  [key: string]: {
+    start: string;
+    end: string;
+  } | null;
+}
 
 interface Company {
   id: number;
@@ -57,6 +62,7 @@ interface Company {
   equipment: CompanyEquipment[];
   pickup_slots: PickupSlot[];
   administrators: CompanyAdministrator[];
+  business_hours: BusinessHours;
 }
 
 const CompanyProfile: React.FC = () => {
@@ -70,14 +76,68 @@ const CompanyProfile: React.FC = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<string | null>(null);
   const [pickupDate, setPickupDate] = useState<string>('');
   const [pickupTime, setPickupTime] = useState<string>('');
-  const [pickupDuration, setPickupDuration] = useState<string>('');
+  const [pickupDuration, setPickupDuration] = useState<number>(0);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageColor, setMessageColor] = useState<string>('text-green-500');
+
+  const displayMessage = (msg: string, color: string) => {
+    setMessage(msg);
+    setMessageColor(color);
+    setTimeout(() => {
+      setMessage(null);
+    }, 3000);
+  };
 
   const handleCreatePickupSlot = () => {
     setShowPickupSlotForm(true);
   };
 
+  const isValidBusinessHours = (date: string, time: string, duration: number): boolean => {
+    if (!company) return false;
+
+    const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+    const businessHours = company.business_hours[dayOfWeek];
+
+    if (!businessHours) return false;
+
+    const [startHour, startMinute] = businessHours.start.split(':').map(Number);
+    const [endHour, endMinute] = businessHours.end.split(':').map(Number);
+    const [inputHour, inputMinute] = time.split(':').map(Number);
+
+    const businessStart = new Date();
+    businessStart.setHours(startHour, startMinute, 0);
+
+    const businessEnd = new Date();
+    businessEnd.setHours(endHour, endMinute, 0);
+
+    const slotStart = new Date();
+    slotStart.setHours(inputHour, inputMinute, 0);
+
+    const slotEnd = new Date(slotStart.getTime() + duration  * 1000);
+    return (
+      slotStart >= businessStart &&
+      slotEnd <= businessEnd &&
+      slotStart <= slotEnd
+    );  
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const minutes = parseFloat(e.target.value);
+    if (!isNaN(minutes)) {
+      const durationInSeconds = minutes * 60;
+      setPickupDuration(durationInSeconds);
+    } else {
+      setPickupDuration(0);
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isValidBusinessHours(pickupDate, pickupTime, pickupDuration)) {
+      displayMessage('Selected slot is outside of business hours.', 'text-red-500');
+      return;
+    }
 
     try {
         const authTokens = localStorage.getItem('authTokens');
@@ -119,8 +179,10 @@ const CompanyProfile: React.FC = () => {
                 pickup_slots: [...prevCompany.pickup_slots, newPickupSlot]
             };
         });
-
-        setShowPickupSlotForm(false);
+        displayMessage('Pickup slot created successfully!', 'text-green-500');
+        setTimeout(() => {
+          setShowPickupSlotForm(false);
+        }, 3000);
     } catch (error) {
         console.error('Error during fetch:', error);
     }
@@ -186,6 +248,7 @@ const CompanyProfile: React.FC = () => {
             (admin) => admin.account.id === currentUserData.id
           );
           setIsCompanyAdmin(isAdmin);
+          
         } else {
           console.error('Failed to fetch data');
         }
@@ -249,7 +312,7 @@ const CompanyProfile: React.FC = () => {
               <ul className="list-disc list-inside text-white">
                 {company.pickup_slots.map((slot) => (
                   <li key={slot.id}>
-                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator.account.name}
+                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator?.account?.name}
                   </li>
                 ))}
               </ul>
@@ -271,7 +334,16 @@ const CompanyProfile: React.FC = () => {
               <p className="text-white">No administrators found.</p>
             )}
           </div>
-
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-300">Business Hours</h2>
+            <ul>
+              {Object.entries(company.business_hours).map(([day, hours]) => (
+                <li key={day} className="text-white mb-2">
+                  {day}: {hours ? `${hours.start} - ${hours.end}` : 'Closed'}
+                </li>
+              ))}
+            </ul>
+          </div>
           <div className="mb-4">
             <button 
               onClick={() => router.push(`/company-equipment/${company.id}`)} 
@@ -336,12 +408,16 @@ const CompanyProfile: React.FC = () => {
                 <label className="block text-white mb-2">Duration (in minutes)</label>
                 <input
                   type="number"
-                  value={pickupDuration}
-                  onChange={(e) => setPickupDuration(e.target.value)}
+                  value={pickupDuration ? pickupDuration / 60 : ''}               
+                  onChange={handleDurationChange}
                   required
+                  placeholder='e.g., 30 (minutes)'
                   className="w-full px-3 py-2 border rounded-lg"
                 />
               </div>
+              {message && (
+                <p className={`mb-4 ${messageColor}`}>{message}</p>
+              )}
               <button type="submit" className="bg-green-500 text-white font-bold py-2 px-4 rounded">
                 Create Pickup Slot
               </button>

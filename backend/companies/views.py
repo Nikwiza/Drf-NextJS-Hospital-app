@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Company, CompanyEquipment, PickupSlot
-from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer
+from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer, PickupSlotSerializerCreate
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 from user.models import Account
@@ -97,7 +97,7 @@ class PickupSlotListView(generics.ListCreateAPIView):
         
 class CreatePickupSlotView(generics.CreateAPIView):
     queryset = PickupSlot.objects.all()
-    serializer_class = PickupSlotSerializer
+    serializer_class = PickupSlotSerializerCreate
 
     def perform_create(self, serializer):
         administrator = self.request.user.companyadministrator

@@ -4,6 +4,8 @@ from equipment.models import Equipment
 from profiles.models import CompanyAdministrator
 from datetime import datetime
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_time
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
@@ -14,6 +16,7 @@ class Company(models.Model):
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(5.00)]
     )
+    business_hours = models.JSONField(default=dict)
 
     def __str__(self):
         return self.company_name
@@ -26,6 +29,7 @@ class PickupSlot(models.Model):
     duration = models.DurationField()
     is_reserved = models.BooleanField(default=False)
     is_expired = models.BooleanField(default=False)
+    reserved_equipment = models.ManyToManyField('companies.CompanyEquipment', blank=True)
 
     def update_expiration_status(self):
         slot_datetime_naive = datetime.combine(self.date, self.time)
@@ -33,6 +37,29 @@ class PickupSlot(models.Model):
         current_datetime = timezone.now()
         self.is_expired = slot_datetime_aware < current_datetime
         self.save()
+    
+    def clean(self):
+        business_hours = self.company.business_hours
+        day_of_week = self.date.strftime('%A')
+        hours = business_hours.get(day_of_week)
+        
+        if hours:
+            start_time = parse_time(hours['start'])
+            end_time = parse_time(hours['end'])
+
+            if not start_time or not end_time:
+                raise ValidationError(f"{day_of_week} is not a working day.")
+            
+            if not (start_time <= self.time <= end_time):
+                raise ValidationError("Pickup time is outside business hours.")
+            
+            slot_end_time = (datetime.combine(datetime.today(), self.time) + self.duration).time()
+            if slot_end_time > end_time:
+                raise ValidationError("Pickup duration extends beyond business hours.")
+            
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.administrator.account.name} - {self.date} at {self.time}"

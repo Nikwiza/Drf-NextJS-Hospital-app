@@ -28,7 +28,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Company
-        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'equipment', 'pickup_slots', 'administrators']
+        fields = ['id', 'company_name', 'address', 'description', 'average_rating', 'latitude', 'longitude', 'business_hours', 'equipment', 'pickup_slots', 'administrators']
 
     def get_latitude(self, obj):
         return self.get_lat_lng(obj.address)[0]
@@ -75,6 +75,24 @@ class PickupSlotSerializer(serializers.ModelSerializer):
         obj.update_expiration_status()
         return obj.is_expired
     
+class PickupSlotSerializerCreate(serializers.ModelSerializer):
+    administrator = serializers.PrimaryKeyRelatedField(queryset=CompanyAdministrator.objects.all())
+    is_expired = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PickupSlot
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved', 'is_expired']
+        read_only_fields = ['company']
+    
+    def get_is_expired(self, obj):
+        obj.update_expiration_status()
+        return obj.is_expired
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['administrator'] = CompanyAdministratorSerializer(instance.administrator).data
+
+        return representation
 
     
 
