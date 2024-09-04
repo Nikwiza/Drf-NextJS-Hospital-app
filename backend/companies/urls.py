@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CompanyListView, CompanyProfileView, CompanyUpdateView, EquipmentListView, AddEquipmentToCompanyView, RemoveEquipmentFromCompanyView, CreatePickupSlotView, PickupSlotReserveView, PickupSlotListView, ReservedUsersListView, WorkCalendarListView
+from .views import CompanyListView, CompanyProfileView, CompanyUpdateView, EquipmentListView, AddEquipmentToCompanyView, RemoveEquipmentFromCompanyView, CreatePickupSlotView, PickupSlotReserveView, PickupSlotListView, ReservedPickupSlotsView, ReservedUsersListView, WorkCalendarListView
 
 
 urlpatterns = [
@@ -14,5 +14,5 @@ urlpatterns = [
     path('pickup-slots/<int:pk>/reserve/', PickupSlotReserveView.as_view(), name='pickup-slot-reserve'),
     path('reservations/<int:pk>/', ReservedUsersListView.as_view(), name='reservations'),
     path('work-calendar/<int:pk>/', WorkCalendarListView.as_view(), name='work-calendar'),
-
+    path('pickup-slots/reserved/', ReservedPickupSlotsView.as_view(), name='reserved-pickup-slots'),
 ]

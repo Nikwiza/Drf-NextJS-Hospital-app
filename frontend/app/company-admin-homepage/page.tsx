@@ -89,7 +89,7 @@ const CompanyAdminHomePage: React.FC = () => {
                 </li>
                 <li>
                 <button 
-                    onClick={() => navigateTo('/admin/equipment-pickup')}
+                    onClick={() => navigateTo('/reserved-pickup-slots')}
                     className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4">
                     Enter Equipment Pickup Information
                 </button>

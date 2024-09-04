@@ -7,6 +7,9 @@ from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 from user.models import Account
 from user.serializers import ReservedUsersSerializer
+from rest_framework.permissions import IsAuthenticated
+from profiles.permissions import IsCompanyAdmin
+
 
 class CompanyListView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
@@ -111,10 +114,10 @@ class PickupSlotReserveView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.is_reserved:
+        if instance.reserved_by is not None:
             return Response({"error": "Slot already reserved"}, status=400)
 
-        instance.is_reserved = True
+        instance.reserved_by = request.user
         instance.save()
         return Response({"detail": "Slot reserved successfully"})
     
@@ -125,7 +128,7 @@ class ReservedUsersListView(generics.ListAPIView):
         company_id = self.kwargs['pk']     
         try:
             company = Company.objects.get(id=company_id)
-            pickup_slots = PickupSlot.objects.filter(company=company, is_reserved=True)
+            pickup_slots = PickupSlot.objects.filter(company=company, reserved_by__isnull=False)
             reserved_users = Account.objects.filter(id__in=[slot.administrator.account.id for slot in pickup_slots])
             return reserved_users
         except Company.DoesNotExist:
@@ -141,3 +144,15 @@ class WorkCalendarListView(generics.ListAPIView):
 class CompanyEquipmentViewSet(generics.ListCreateAPIView):
     queryset = CompanyEquipment.objects.all()
     serializer_class = CompanyEquipmentSerializer
+
+class ReservedPickupSlotsView(generics.ListAPIView):
+    serializer_class = PickupSlotSerializer
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
+    def get_queryset(self):
+        return PickupSlot.objects.filter(
+            administrator=self.request.user.companyadministrator,
+            reserved_by__isnull=False,
+            is_expired=False,
+            is_picked_up=False
+        )

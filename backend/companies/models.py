@@ -27,8 +27,9 @@ class PickupSlot(models.Model):
     date = models.DateField()
     time = models.TimeField()
     duration = models.DurationField()
-    is_reserved = models.BooleanField(default=False)
+    reserved_by = models.ForeignKey('user.Account', on_delete=models.SET_NULL, null=True, blank=True, related_name='reserved_slots')
     is_expired = models.BooleanField(default=False)
+    is_picked_up = models.BooleanField(default=False)
     reserved_equipment = models.ManyToManyField('companies.CompanyEquipment', blank=True)
 
     def update_expiration_status(self):

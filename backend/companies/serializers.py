@@ -1,3 +1,4 @@
+from user.serializers import ReservedUsersSerializer
 from profiles.models import CompanyAdministrator
 from equipment.serializers import EquipmentSerializer
 from .models import Company, CompanyEquipment, PickupSlot
@@ -50,7 +51,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
             return None, None
     
     def get_pickup_slots(self, obj):
-        unreserved_slots = PickupSlot.objects.filter(company=obj, is_reserved=False, is_expired=False)
+        unreserved_slots = PickupSlot.objects.filter(company=obj, reserved_by=None, is_expired=False)
         return PickupSlotSerializer(unreserved_slots, many=True).data
     
     def get_administrators(self, obj):
@@ -65,10 +66,11 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
 class PickupSlotSerializer(serializers.ModelSerializer):
     administrator = CompanyAdministratorSerializer()
     is_expired = serializers.SerializerMethodField()
+    reserved_by = ReservedUsersSerializer()
 
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved', 'is_expired']
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up']
         read_only_fields = ['company']
     
     def get_is_expired(self, obj):
@@ -81,7 +83,7 @@ class PickupSlotSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'is_reserved', 'is_expired']
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up']
         read_only_fields = ['company']
     
     def get_is_expired(self, obj):
