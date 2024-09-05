@@ -61,7 +61,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
 class CompanyUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['company_name', 'description', 'address']
+        fields = ['company_name', 'description', 'address', 'business_hours']
 
 class PickupSlotSerializer(serializers.ModelSerializer):
     administrator = CompanyAdministratorSerializer()
@@ -70,7 +70,7 @@ class PickupSlotSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up']
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up', 'reserved_equipment']
         read_only_fields = ['company']
     
     def get_is_expired(self, obj):
@@ -83,7 +83,7 @@ class PickupSlotSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up']
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up', 'reserved_equipment']
         read_only_fields = ['company']
     
     def get_is_expired(self, obj):

@@ -9,6 +9,8 @@ from user.models import Account
 from user.serializers import ReservedUsersSerializer
 from rest_framework.permissions import IsAuthenticated
 from profiles.permissions import IsCompanyAdmin
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class CompanyListView(generics.ListCreateAPIView):
@@ -118,6 +120,8 @@ class PickupSlotReserveView(generics.UpdateAPIView):
             return Response({"error": "Slot already reserved"}, status=400)
 
         instance.reserved_by = request.user
+        reserved_equipment = request.data.get('reserved_equipment', [])
+        instance.reserved_equipment = reserved_equipment
         instance.save()
         return Response({"detail": "Slot reserved successfully"})
     
@@ -155,4 +159,88 @@ class ReservedPickupSlotsView(generics.ListAPIView):
             reserved_by__isnull=False,
             is_expired=False,
             is_picked_up=False
+        )
+        
+class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
+    def destroy(self, request, *args, **kwargs):
+        company_id = kwargs.get('company_id')
+        equipment_id = kwargs.get('equipment_id')
+        quantity_to_remove = request.data.get('quantity', 1)
+
+        try:
+            company_equipment = CompanyEquipment.objects.get(
+                company_id=company_id, equipment_id=equipment_id
+            )
+
+            if company_equipment.quantity > quantity_to_remove:
+                company_equipment.quantity -= quantity_to_remove
+                company_equipment.save()
+            else:
+                company_equipment.delete()
+
+            return Response({"detail": "Equipment removed successfully"})
+        except CompanyEquipment.DoesNotExist:
+            return Response({"error": "CompanyEquipment not found"}, status=404)
+        except Exception as e:
+            print(f"Error during removing equipment: {e}")
+            return Response({"error": "Internal Server Error"}, status=500)
+        
+class ConfirmPickupView(generics.UpdateAPIView):
+    queryset = PickupSlot.objects.all()
+    serializer_class = PickupSlotSerializer 
+
+    def patch(self, request, *args, **kwargs):
+        slot_id = kwargs.get('pk')
+        
+        try:
+            pickup_slot = PickupSlot.objects.get(id=slot_id)
+
+            company = pickup_slot.company
+            reserved_equipment = pickup_slot.reserved_equipment
+            
+            for equipment_item in reserved_equipment:
+                equipment_id = equipment_item.get('equipment_id')
+                quantity = equipment_item.get('quantity')
+
+                if not isinstance(equipment_id, int) or not isinstance(quantity, int):
+                    return Response({"error": "Invalid equipment data"}, status=400)
+
+                try:
+                    company_equipment = CompanyEquipment.objects.get(company=company, equipment_id=equipment_id)
+                    
+                    if company_equipment.quantity >= quantity:
+                        company_equipment.quantity -= quantity
+                        company_equipment.save()
+                    else:
+                        return Response({"error": f"Not enough equipment (ID: {equipment_id}) to remove"}, status=400)
+            
+            
+                except CompanyEquipment.DoesNotExist:
+                    return Response({"error": f"CompanyEquipment with equipment_id {equipment_id} not found"}, status=404)
+                
+            pickup_slot.is_picked_up = True
+            pickup_slot.save()
+
+            
+            #self.send_confirmation_email(pickup_slot)
+
+            return Response({"detail": "Pickup confirmed and equipment updated"}, status=200)
+        except PickupSlot.DoesNotExist:
+            return Response({"error": "PickupSlot not found"}, status=404)
+        except Exception as e:
+            print(f"Error during confirming pickup: {e}")
+            return Response({"error": "Internal Server Error"}, status=500)
+
+
+    def send_confirmation_email(self, pickup_slot):
+        user_email = pickup_slot.reserved_by.email
+        subject = "Equipment Pickup Confirmation"
+        message = f"Dear {pickup_slot.reserved_by.name},\n\nYou have successfully picked up the following equipment: {pickup_slot.reserved_equipment}. Thank you!\n\nBest regards,\nYour Company."
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user_email],
+            fail_silently=False,
         )

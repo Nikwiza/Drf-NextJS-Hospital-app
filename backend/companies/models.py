@@ -6,6 +6,7 @@ from datetime import datetime
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_time
+from django.db.models import JSONField
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
@@ -30,7 +31,7 @@ class PickupSlot(models.Model):
     reserved_by = models.ForeignKey('user.Account', on_delete=models.SET_NULL, null=True, blank=True, related_name='reserved_slots')
     is_expired = models.BooleanField(default=False)
     is_picked_up = models.BooleanField(default=False)
-    reserved_equipment = models.ManyToManyField('companies.CompanyEquipment', blank=True)
+    reserved_equipment = JSONField(blank=True, null=True)
 
     def update_expiration_status(self):
         slot_datetime_naive = datetime.combine(self.date, self.time)
