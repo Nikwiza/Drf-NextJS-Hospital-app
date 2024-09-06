@@ -11,6 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from profiles.permissions import IsCompanyAdmin
 from django.core.mail import send_mail
 from django.conf import settings
+from datetime import timedelta, datetime
+from django.db.models import Sum
+
 
 
 class CompanyListView(generics.ListCreateAPIView):
@@ -244,3 +247,110 @@ class ConfirmPickupView(generics.UpdateAPIView):
             [user_email],
             fail_silently=False,
         )
+
+class CompanyAnalyticsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
+    def list(self, request, *args, **kwargs):
+        company_id = kwargs.get('pk')
+        try:
+            company = Company.objects.get(id=company_id)
+
+            # 1. Average rating of the company
+            average_rating = company.average_rating
+
+            # Define date ranges for the last 6 months, 6 quarters, and 6 years
+            now = datetime.now()
+            periods = {
+                'months': [(now - timedelta(days=30 * i)).date() for i in reversed(range(6))],
+                'quarters': [(now - timedelta(days=90 * i)).date() for i in reversed(range(6))],
+                'years': [(now - timedelta(days=365 * i)).date() for i in reversed(range(6))],
+            }
+
+            # Helper function to get counts over specific periods
+            def get_counts(periods, period_type, reserved_only=False):
+                counts = {period.isoformat(): 0 for period in periods[period_type]}
+                
+                for period_start in periods[period_type]:
+                    if period_type == 'months':
+                        end_date = period_start + timedelta(days=30)
+                    elif period_type == 'quarters':
+                        end_date = period_start + timedelta(days=90)
+                    else:  # years
+                        end_date = period_start + timedelta(days=365)
+                    
+                    query_filters = {
+                        'company': company,
+                        'date__gte': period_start,
+                        'date__lt': end_date
+                    }
+                    
+                    if reserved_only:
+                        query_filters['reserved_by__isnull'] = False
+                    
+                    count = PickupSlot.objects.filter(**query_filters).count()
+                    counts[period_start.isoformat()] = count
+                
+                return counts
+
+            # Pickup Slots
+            created_slots = {
+                'months': get_counts(periods, 'months', reserved_only=False),
+                'quarters': get_counts(periods, 'quarters', reserved_only=False),
+                'years': get_counts(periods, 'years', reserved_only=False)
+            }
+
+            # Reserved Slots
+            reserved_slots = {
+                'months': get_counts(periods, 'months', reserved_only=True),
+                'quarters': get_counts(periods, 'quarters', reserved_only=True),
+                'years': get_counts(periods, 'years', reserved_only=True)
+            }
+
+            # Revenue calculation
+            def calculate_revenue(period_type):
+                revenues = {period.isoformat(): 0 for period in periods[period_type]}
+                for period_start in periods[period_type]:
+                    if period_type == 'months':
+                        end_date = period_start + timedelta(days=30)
+                    elif period_type == 'quarters':
+                        end_date = period_start + timedelta(days=90)
+                    else:  # years
+                        end_date = period_start + timedelta(days=365)
+
+                    # Fetch reserved pickup slots for the period
+                    pickup_slots = PickupSlot.objects.filter(
+                        company=company,
+                        reserved_by__isnull=False,
+                        is_picked_up=True,
+                        date__gte=period_start,
+                        date__lt=end_date
+                    )
+                    
+                    # Calculate revenue for the period
+                    total_revenue = 0
+                    for slot in pickup_slots:
+                        for equipment_data in slot.reserved_equipment:
+                            try:
+                                equipment = Equipment.objects.get(id=equipment_data['equipment_id'])
+                                total_revenue += equipment.price * equipment_data['quantity']
+                            except Equipment.DoesNotExist:
+                                continue  # Handle cases where equipment is not found
+
+                    revenues[period_start.isoformat()] = total_revenue
+                return revenues
+
+            revenue = {
+                'months': calculate_revenue('months')
+            }
+
+            data = {
+                'average_rating': average_rating,
+                'created_slots': created_slots,
+                'reserved_slots': reserved_slots,
+                'revenue': revenue
+            }
+
+            return Response(data)
+        except Company.DoesNotExist:
+            return Response({"error": "Company not found"}, status=404)
