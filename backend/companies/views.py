@@ -12,7 +12,9 @@ from profiles.permissions import IsCompanyAdmin
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import timedelta, datetime
-from django.db.models import Sum
+from django.db import transaction
+from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
 
 
@@ -107,8 +109,35 @@ class CreatePickupSlotView(generics.CreateAPIView):
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializerCreate
 
+    @transaction.atomic
     def perform_create(self, serializer):
         administrator = self.request.user.companyadministrator
+        instance_data = serializer.validated_data
+        date = instance_data['date']
+        time = instance_data['time']
+        duration = instance_data['duration']
+        end_time = (datetime.combine(date, time) + duration).time()
+
+        slots = PickupSlot.objects.filter(
+            administrator=administrator,
+            date=date
+        )
+
+        for slot in slots:
+            existing_start_time = slot.time
+            existing_end_time = (datetime.combine(slot.date, existing_start_time) + slot.duration).time()
+
+            new_start_datetime = datetime.combine(date, time)
+            new_end_datetime = datetime.combine(date, end_time)
+            existing_start_datetime = datetime.combine(slot.date, existing_start_time)
+            existing_end_datetime = datetime.combine(slot.date, existing_end_time)
+
+            if (new_start_datetime < existing_end_datetime and new_end_datetime > existing_start_datetime):
+                raise ValidationError(
+                    "Administrator is already assigned to another pickup slot during this time."
+                )
+
+        # No conflicts, save the slot
         serializer.save(administrator=administrator, company=administrator.company)
 
         return Response(serializer.data)
@@ -192,15 +221,16 @@ class ConfirmPickupView(generics.UpdateAPIView):
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializer 
 
+    @transaction.atomic
     def patch(self, request, *args, **kwargs):
         slot_id = kwargs.get('pk')
-        
-        try:
-            pickup_slot = PickupSlot.objects.get(id=slot_id)
 
+        try:
+            pickup_slot = PickupSlot.objects.select_for_update().get(id=slot_id)  # Lock the pickup slot row
+            
             company = pickup_slot.company
             reserved_equipment = pickup_slot.reserved_equipment
-            
+
             for equipment_item in reserved_equipment:
                 equipment_id = equipment_item.get('equipment_id')
                 quantity = equipment_item.get('quantity')
@@ -209,31 +239,28 @@ class ConfirmPickupView(generics.UpdateAPIView):
                     return Response({"error": "Invalid equipment data"}, status=400)
 
                 try:
-                    company_equipment = CompanyEquipment.objects.get(company=company, equipment_id=equipment_id)
+                    company_equipment = CompanyEquipment.objects.select_for_update().get(company=company, equipment_id=equipment_id)
                     
                     if company_equipment.quantity >= quantity:
                         company_equipment.quantity -= quantity
-                        company_equipment.save()
+                        company_equipment.save() 
                     else:
                         return Response({"error": f"Not enough equipment (ID: {equipment_id}) to remove"}, status=400)
-            
-            
                 except CompanyEquipment.DoesNotExist:
                     return Response({"error": f"CompanyEquipment with equipment_id {equipment_id} not found"}, status=404)
-                
-            pickup_slot.is_picked_up = True
-            pickup_slot.save()
 
-            
-            #self.send_confirmation_email(pickup_slot)
+            pickup_slot.is_picked_up = True
+            pickup_slot.save() 
+
+            # self.send_confirmation_email(pickup_slot)
 
             return Response({"detail": "Pickup confirmed and equipment updated"}, status=200)
+
         except PickupSlot.DoesNotExist:
             return Response({"error": "PickupSlot not found"}, status=404)
         except Exception as e:
             print(f"Error during confirming pickup: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
-
 
     def send_confirmation_email(self, pickup_slot):
         user_email = pickup_slot.reserved_by.email

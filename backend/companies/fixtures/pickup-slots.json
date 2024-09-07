@@ -6,7 +6,7 @@
             "administrator": 1,
             "company": 1,
             "date": "2023-09-02",
-            "time": "09:00:00",
+            "time": "10:00:00",
             "duration": "00:30:00",
             "reserved_by": 3,
             "reserved_equipment": [
@@ -22,7 +22,7 @@
         "fields": {
             "administrator": 2,
             "company": 2,
-            "date": "2023-09-03",
+            "date": "2023-09-04",
             "time": "14:00:00",
             "duration": "01:00:00",
             "reserved_by": null
@@ -63,8 +63,8 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2023-09-10",
-            "time": "09:30:00",
+            "date": "2023-09-11",
+            "time": "10:30:00",
             "duration": "01:00:00",
             "reserved_by": 3,
             "reserved_equipment": [
@@ -108,7 +108,7 @@
         "fields": {
             "administrator": 2,
             "company": 2,
-            "date": "2023-09-16",
+            "date": "2023-09-17",
             "time": "15:00:00",
             "duration": "00:45:00",
             "reserved_by": null
@@ -148,7 +148,7 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2022-11-05",
+            "date": "2022-11-07",
             "time": "09:00:00",
             "duration": "01:00:00",
             "reserved_by": 3,
@@ -177,7 +177,7 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2023-01-15",
+            "date": "2023-01-16",
             "time": "11:00:00",
             "duration": "01:00:00",
             "reserved_by": 3,
@@ -293,7 +293,7 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2023-09-03",
+            "date": "2023-09-04",
             "time": "15:00:00",
             "duration": "01:00:00",
             "reserved_by": null
@@ -322,7 +322,7 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2023-11-05",
+            "date": "2023-11-06",
             "time": "10:00:00",
             "duration": "00:45:00",
             "reserved_by": 3,
@@ -398,7 +398,7 @@
             "administrator": 1,
             "company": 1,
             "date": "2024-04-20",
-            "time": "14:00:00",
+            "time": "12:00:00",
             "duration": "01:00:00",
             "reserved_by": null
         }
@@ -426,7 +426,7 @@
         "fields": {
             "administrator": 1,
             "company": 1,
-            "date": "2024-06-15",
+            "date": "2024-06-17",
             "time": "09:00:00",
             "duration": "01:00:00",
             "reserved_by": null

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from user.serializers import ReservedUsersSerializer
 from profiles.models import CompanyAdministrator
 from equipment.serializers import EquipmentSerializer
@@ -67,15 +68,23 @@ class PickupSlotSerializer(serializers.ModelSerializer):
     administrator = CompanyAdministratorSerializer()
     is_expired = serializers.SerializerMethodField()
     reserved_by = ReservedUsersSerializer()
+    end_time = serializers.SerializerMethodField()
+
 
     class Meta:
         model = PickupSlot
-        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'reserved_by', 'is_expired', 'is_picked_up', 'reserved_equipment']
+        fields = ['id', 'administrator', 'company', 'date', 'time', 'duration', 'end_time', 'reserved_by', 'is_expired', 'is_picked_up', 'reserved_equipment']
         read_only_fields = ['company']
     
     def get_is_expired(self, obj):
         obj.update_expiration_status()
         return obj.is_expired
+    def get_end_time(self, obj):
+        start_time = datetime.combine(obj.date, obj.time)
+        duration = obj.duration
+        duration_seconds = duration.total_seconds()
+        end_time = start_time + timedelta(seconds=duration_seconds)
+        return end_time.time()
     
 class PickupSlotSerializerCreate(serializers.ModelSerializer):
     administrator = serializers.PrimaryKeyRelatedField(queryset=CompanyAdministrator.objects.all())

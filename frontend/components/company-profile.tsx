@@ -167,8 +167,13 @@ const CompanyProfile: React.FC = () => {
         });
 
         if (!response.ok) {
-            console.error('Failed to create pickup slot');
-            return;
+          const errorData = await response.json();
+          if (response.status === 400 && errorData[0] === "Administrator is already assigned to another pickup slot during this time.") {
+            displayMessage('Administrator is already assigned to another pickup slot during this time.', 'text-red-500');
+          } else {
+            console.log('Failed to create pickup slot. Please try again.', 'text-red-500');
+          }
+          return;
         }
 
         const newPickupSlot = await response.json();
