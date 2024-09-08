@@ -1,0 +1,464 @@
+[
+    {
+        "model": "companies.PickupSlot",
+        "pk": 1,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-02",
+            "time": "10:00:00",
+            "duration": "00:30:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 3, "quantity": 2},
+                {"equipment_id": 1, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 2,
+        "fields": {
+            "administrator": 2,
+            "company": 2,
+            "date": "2023-09-04",
+            "time": "14:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 3,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-05",
+            "time": "10:30:00",
+            "duration": "00:45:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 1},
+                {"equipment_id": 1, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 4,
+        "fields": {
+            "administrator": 2,
+            "company": 2,
+            "date": "2023-09-07",
+            "time": "12:00:00",
+            "duration": "01:15:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 5,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-11",
+            "time": "10:30:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 3, "quantity": 2},
+                {"equipment_id": 1, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 6,
+        "fields": {
+            "administrator": 2,
+            "company": 2,
+            "date": "2023-09-12",
+            "time": "13:00:00",
+            "duration": "01:30:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 7,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-14",
+            "time": "10:00:00",
+            "duration": "00:30:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 4, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 8,
+        "fields": {
+            "administrator": 2,
+            "company": 2,
+            "date": "2023-09-17",
+            "time": "15:00:00",
+            "duration": "00:45:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 9,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-20",
+            "time": "11:30:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 5, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 10,
+        "fields": {
+            "administrator": 2,
+            "company": 2,
+            "date": "2023-09-25",
+            "time": "12:00:00",
+            "duration": "01:15:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 11,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2022-11-07",
+            "time": "09:00:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 1},
+                {"equipment_id": 4, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 12,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2022-12-12",
+            "time": "10:30:00",
+            "duration": "00:45:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 13,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-01-16",
+            "time": "11:00:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 1, "quantity": 2},
+                {"equipment_id": 5, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 14,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-02-20",
+            "time": "09:30:00",
+            "duration": "00:30:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 15,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-03-10",
+            "time": "14:00:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 3, "quantity": 1},
+                {"equipment_id": 4, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 16,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-04-05",
+            "time": "10:00:00",
+            "duration": "01:15:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 17,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-05-15",
+            "time": "09:00:00",
+            "duration": "00:45:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 2},
+                {"equipment_id": 5, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 18,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-06-10",
+            "time": "11:00:00",
+            "duration": "00:30:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 19,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-07-20",
+            "time": "13:00:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 1},
+                {"equipment_id": 5, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 20,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-08-15",
+            "time": "10:00:00",
+            "duration": "00:45:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 21,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-09-04",
+            "time": "15:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 22,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-10-02",
+            "time": "09:00:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 1, "quantity": 1},
+                {"equipment_id": 4, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 23,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-11-06",
+            "time": "10:00:00",
+            "duration": "00:45:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 1},
+                {"equipment_id": 5, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 24,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2023-12-15",
+            "time": "11:00:00",
+            "duration": "00:30:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 25,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-01-10",
+            "time": "09:30:00",
+            "duration": "01:00:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 3, "quantity": 1},
+                {"equipment_id": 5, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 26,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-02-05",
+            "time": "10:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 27,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-03-15",
+            "time": "09:00:00",
+            "duration": "01:15:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 2, "quantity": 2},
+                {"equipment_id": 4, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 28,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-04-20",
+            "time": "12:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 29,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-05-10",
+            "time": "11:00:00",
+            "duration": "00:45:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 1, "quantity": 1},
+                {"equipment_id": 3, "quantity": 2}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 30,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-06-17",
+            "time": "09:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 31,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-07-10",
+            "time": "10:00:00",
+            "duration": "00:30:00",
+            "reserved_by": 3,
+            "reserved_equipment": [
+                {"equipment_id": 4, "quantity": 1},
+                {"equipment_id": 5, "quantity": 1}
+            ],
+            "is_picked_up": true
+        }
+    },
+    {
+        "model": "companies.PickupSlot",
+        "pk": 32,
+        "fields": {
+            "administrator": 1,
+            "company": 1,
+            "date": "2024-08-05",
+            "time": "13:00:00",
+            "duration": "01:00:00",
+            "reserved_by": null
+        }
+    }
+]

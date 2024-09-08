@@ -17,7 +17,7 @@ interface CompanyAdministrator {
 const CompanyAdministratorProfile: React.FC = () => {
   const [admin, setAdmin] = useState<CompanyAdministrator | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
-  const router = useRouter();  // For navigation
+  const router = useRouter(); 
 
   useEffect(() => {
     const fetchAuthenticatedAdmin = async () => {
