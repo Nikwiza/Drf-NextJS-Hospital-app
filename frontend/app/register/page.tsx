@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AuthContext from "@/context/AuthContext";
@@ -63,7 +62,7 @@ const RegisterPage = () => {
           password:password,
         }),
       });
-      if (res.status === 400) {
+      if (res.status === 400 || res.status === 422) {
         toast.error("This email is already registered")
         setError("The email already in use");
       }
