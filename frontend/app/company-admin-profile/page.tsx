@@ -9,7 +9,9 @@ interface CompanyAdministrator {
     company_name: string;
     company_id: number; 
     account: {
-        name: string;
+        first_name: string;
+        last_name: string;
+        phone_number: string;
         email: string;
     }
 }
@@ -85,7 +87,13 @@ const CompanyAdministratorProfile: React.FC = () => {
     <div className="max-w-md mx-auto bg-slate-700 p-8 border rounded-lg shadow-lg mt-8">
       <h1 className="text-3xl font-bold mb-4 text-white">Administrator Profile</h1>
       <p className="mb-2 text-white">
-        <span className="font-bold text-gray-300">Name:</span> {admin.account.name}
+        <span className="font-bold text-gray-300">First name:</span> {admin.account.first_name}
+      </p>
+      <p className="mb-2 text-white">
+        <span className="font-bold text-gray-300">Last name:</span> {admin.account.last_name}
+      </p>
+      <p className="mb-2 text-white">
+        <span className="font-bold text-gray-300">Phone Number:</span> {admin.account.phone_number}
       </p>
       <p className="mb-2 text-white">
         <span className="font-bold text-gray-300">Email:</span> {admin.account.email}

@@ -18,7 +18,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('password', 
-                  'email', 'name')
+                  'email', 'first_name', 'last_name', 'phone_number')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -28,7 +28,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = Account.objects.create_user(
             email=validated_data['email'],
-            name=validated_data['name'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_number=validated_data['phone_number'],
             password=validated_data['password']
         )
         user.save()
@@ -47,7 +49,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('password', 
-                  'email', 'name')
+                  'email', 'first_name', 'last_name', 'phone_number')
     extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -57,7 +59,9 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = Account.objects.create_admin(
             email=validated_data['email'],
-            name=validated_data['name'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_number=validated_data['phone_number'],
             password=validated_data['password']
         )
         user.save()
@@ -75,7 +79,7 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ('email', 'name', 'password', 'company')
+        fields = ('email', 'first_name', 'last_name', 'phone_number', 'password', 'company')
 
     def create(self, validated_data):
         # Extract the company before creating the Account instance
@@ -83,7 +87,9 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
         # Create the Account instance
         user = Account.objects.create_company_admin(
             email=validated_data['email'],
-            name=validated_data['name'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_number=validated_data['phone_number'],
             password=validated_data['password']
         )
         # Now create the CompanyAdministrator instance
@@ -97,7 +103,7 @@ class CompanyAdministratorSerializer(serializers.ModelSerializer):
     company_id = serializers.SerializerMethodField()
     class Meta:
         model = CompanyAdministrator
-        fields = ['id', 'account', 'company_name', 'company_id']
+        fields = ['id', 'account', 'company_name', 'company_id', 'is_password_changed']
         
     def update(self, instance, validated_data):
         account_data = validated_data.pop('account', None)

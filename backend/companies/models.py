@@ -64,7 +64,7 @@ class PickupSlot(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.administrator.account.name} - {self.date} at {self.time}"
+        return f"{self.administrator.account.first_name} {self.administrator.account.last_name} - {self.date} at {self.time}"
 
 class CompanyEquipment(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_equipments')

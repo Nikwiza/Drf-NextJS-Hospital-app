@@ -8,18 +8,74 @@ import AuthContext from "@/context/AuthContext";
 import { sendConfirmationEmail } from "@/services/Email";
 
 
+interface Account {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  date_joined: string;
+  last_login: string;
+  is_admin: boolean;
+  is_active: boolean;
+  is_email_verified: boolean;
+  is_company_admin: boolean;
+  is_password_changed: boolean;
+}
 
 const NextLoginPage = () => {
   const router = useRouter();
   const { loginUser, user, userInfo } = useContext(AuthContext);
+  const [fetchedUserInfo, setFetchedUserInfo] = useState<Account | null>(null);
+
 
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user != null && !userInfo?.is_email_verified) {
-      router.push("/confirm");
+  const fetchUserData = async (): Promise<Account | null> => {
+    try {
+      const authTokens = localStorage.getItem('authTokens');
+      if (!authTokens) throw new Error("Tokens are missing");
+  
+      let authTokensJson;
+      try {
+        authTokensJson = JSON.parse(authTokens);
+      } catch {
+        throw new Error("Tokens cannot be parsed");
+      }
+  
+      if (!authTokensJson?.access) throw new Error("Access token is missing");
+  
+      const response = await fetch('http://localhost:8000/user/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authTokensJson.access}`,
+          'Content-Type': 'application/json',
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data: Account = await response.json();
+      console.log('Fetched user data:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      return null;
     }
-  }, [user, router]);
+  };
+  
+
+  useEffect(() => {
+    if (fetchedUserInfo) {
+      if (!fetchedUserInfo.is_email_verified) {
+        router.push("/confirm");
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [fetchedUserInfo, router]);
 
 
   const isValidEmail = (email: string) => {
@@ -31,13 +87,13 @@ const NextLoginPage = () => {
     e.preventDefault();
     const email = e.target[0].value;
     const password = e.target[1].value;
-
+  
     if (!isValidEmail(email)) {
       setError("Email is invalid");
       toast.error("Email is invalid");
       return;
     }
-
+  
     if (!password || password.length < 8) {
       setError("Password is invalid");
       toast.error("Password is invalid");
@@ -45,33 +101,40 @@ const NextLoginPage = () => {
     }
   
     const res = await loginUser({
-      email:email,
-      password:password,
+      email,
+      password,
     });
-
-
+  
     if (!res?.success) {
       setError(res.detail);
       toast.error(res.detail);
     } else {
       setError("");
       toast.success("Successful login");
-      //Sanity check
-      // if(userInfo == null){
-      //   throw new Error("The user was not set!")
-      // }
-      if(!userInfo?.is_email_verified){
-        sendConfirmationEmail()
-        router.push("/confirm")
+  
+      const userData = await fetchUserData();
+  
+      if (!userData) {
+        console.error('Failed to fetch user data.');
+        return;
       }
-      else{
+  
+      if (!userData.is_email_verified) {
+        sendConfirmationEmail();
+        router.push("/confirm");
+      } 
+      if (userData.is_company_admin) {
+        if(userData.is_password_changed){
+          router.push("/company-admin-homepage");
+        }else{
+          router.push("/company-admin-password-change");
+        }
+      }
+       else {
         router.push("/dashboard");
       }
-      
-      
     }
   };
-
 
   return (
         true && ( 

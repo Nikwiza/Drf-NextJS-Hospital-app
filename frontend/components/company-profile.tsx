@@ -35,7 +35,8 @@ interface PickupSlot {
 
 interface Account {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email:string;
 }
 
@@ -317,7 +318,7 @@ const CompanyProfile: React.FC = () => {
               <ul className="list-disc list-inside text-white">
                 {company.pickup_slots.map((slot) => (
                   <li key={slot.id}>
-                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator?.account?.name}
+                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator?.account?.first_name} {slot.administrator?.account?.last_name}
                   </li>
                 ))}
               </ul>
@@ -331,7 +332,8 @@ const CompanyProfile: React.FC = () => {
             {company.administrators.length > 0 ? (
               company.administrators.map((admin) => (
                 <div key={admin.id} className="mb-2 text-white">
-                  <p><strong>Name:</strong> {admin.account.name}</p>
+                  <p><strong>First Name:</strong> {admin.account.first_name}</p>
+                  <p><strong>Last Name: {admin.account.last_name}</strong></p>
                   <p><strong>Email:</strong> {admin.account.email}</p>
                 </div>
               ))
@@ -384,7 +386,7 @@ const CompanyProfile: React.FC = () => {
                   <option value="">Select an administrator</option>
                   {company.administrators.map((admin) => (
                     <option key={admin.id} value={admin.id}>
-                      {admin.account.name}
+                      {admin.account.first_name} {admin.account.last_name}
                     </option>
                   ))}
                 </select>
