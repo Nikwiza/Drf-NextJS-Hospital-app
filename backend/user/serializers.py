@@ -23,3 +23,8 @@ class ReservedUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['id', 'first_name', 'last_name', 'phone_number', 'email']
+
+class AccountUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['first_name', 'last_name', 'phone_number', 'email']

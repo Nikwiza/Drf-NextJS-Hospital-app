@@ -17,6 +17,9 @@ interface CompanyAdministrator {
 }
 
 const CompanyAdministratorProfile: React.FC = () => {
+  const navigateTo = (path: string) => {
+    router.push(path);
+  };
   const [admin, setAdmin] = useState<CompanyAdministrator | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
   const router = useRouter(); 
@@ -109,11 +112,13 @@ const CompanyAdministratorProfile: React.FC = () => {
       </p>
       <div className="flex justify-between mt-8">
         <button
+          onClick={() => navigateTo('/account-update')}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Edit Info
         </button>
         <button
+          onClick={() => navigateTo('/company-admin-password-change')}
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
         >
           Change Password
