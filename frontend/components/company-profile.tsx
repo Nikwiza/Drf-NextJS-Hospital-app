@@ -89,6 +89,12 @@ const CompanyProfile: React.FC = () => {
     }, 3000);
   };
 
+  const handleViewCompanyAnalytics = () => {
+    if (company) {
+      router.push(`/company-analytics/${company.id}`); 
+    }
+};
+
   const handleCreatePickupSlot = () => {
     setShowPickupSlotForm(true);
   };
@@ -169,8 +175,8 @@ const CompanyProfile: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          if (response.status === 400 && errorData[0] === "Administrator is already assigned to another pickup slot during this time.") {
-            displayMessage('Administrator is already assigned to another pickup slot during this time.', 'text-red-500');
+          if (response.status === 400 && errorData[0] === "A pickup slot conflict exists with another slot in the same company.") {
+            displayMessage("A pickup slot conflict exists with another slot in the same company.", 'text-red-500');
           } else {
             console.log('Failed to create pickup slot. Please try again.', 'text-red-500');
           }
@@ -333,7 +339,7 @@ const CompanyProfile: React.FC = () => {
               company.administrators.map((admin) => (
                 <div key={admin.id} className="mb-2 text-white">
                   <p><strong>First Name:</strong> {admin.account.first_name}</p>
-                  <p><strong>Last Name: {admin.account.last_name}</strong></p>
+                  <p><strong>Last Name:</strong> {admin.account.last_name}</p>
                   <p><strong>Email:</strong> {admin.account.email}</p>
                 </div>
               ))
@@ -352,20 +358,24 @@ const CompanyProfile: React.FC = () => {
             </ul>
           </div>
           <div className="mb-4">
+            {isCompanyAdmin && (
             <button 
-              onClick={() => router.push(`/company-equipment/${company.id}`)} 
-              className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+            onClick={() => router.push(`/company-equipment/${company.id}`)} 
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
               Update Company Equipment
             </button>
+            )}
           </div>
           <div className='mb-4'>
+            {isCompanyAdmin && (
             <button
             onClick={() => router.push(`/update-company/${company.id}`)}
             className='bg-blue-500 text-white font-bold py-2 px-4 rounded'>
               Edit Company Info
             </button>
+            )}
           </div>
-          <div className='mb-8'>
+          <div className='mb-4'>
             {isCompanyAdmin && (
             <button onClick={handleCreatePickupSlot}
             className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
@@ -430,8 +440,15 @@ const CompanyProfile: React.FC = () => {
               </button>
             </form>
           )}
+          <div className='mb-4'>
+            {isCompanyAdmin && (
+            <button onClick={handleViewCompanyAnalytics}
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+              Company Business Analytics
+            </button>
+            )}
+          </div>
         </div>
-
         <div>
           <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
           {company.equipment && company.equipment.length > 0 ? (

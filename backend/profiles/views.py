@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from profiles.permissions import IsSystemAdmin, IsEmailConfirmed
+from profiles.permissions import IsCompanyAdmin, IsSystemAdmin, IsEmailConfirmed
 from django.utils.decorators import method_decorator
 from django.contrib.auth.views import PasswordChangeView
 
@@ -49,9 +49,9 @@ def createCompanyAdminAccount(request):
     
 
 class CompanyAdminProfileView(generics.RetrieveUpdateAPIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     serializer_class = CompanyAdministratorSerializer
-    
+        
     def get_object(self):
         return self.request.user.companyadministrator
 

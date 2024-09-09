@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
+
+from profiles.models import CompanyAdministrator
 from .models import Company, CompanyEquipment, PickupSlot
 from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer, PickupSlotSerializerCreate
 from equipment.serializers import EquipmentSerializer
@@ -28,6 +30,7 @@ class CompanyProfileView(generics.RetrieveAPIView):
     lookup_field = 'pk'
 
 class CompanyUpdateView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = Company.objects.all()
     serializer_class = CompanyUpdateSerializer
     lookup_field = 'pk'
@@ -56,6 +59,8 @@ class EquipmentListView(generics.ListAPIView):
             return Equipment.objects.none()
         
 class AddEquipmentToCompanyView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
     def update(self, request, *args, **kwargs):
         company_id = kwargs.get('company_pk')
         equipment_id = kwargs.get('equipment_pk')
@@ -81,6 +86,8 @@ class AddEquipmentToCompanyView(generics.UpdateAPIView):
             return Response({"error": "Internal Server Error"}, status=500)
         
 class RemoveEquipmentFromCompanyView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
     def destroy(self, request, *args, **kwargs):
         company_equipment_id = kwargs.get('equipment_pk') 
         quantity_to_remove = request.data.get('quantity', 1)
@@ -106,36 +113,35 @@ class PickupSlotListView(generics.ListCreateAPIView):
     serializer_class = PickupSlotSerializer
         
 class CreatePickupSlotView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializerCreate
 
     @transaction.atomic
     def perform_create(self, serializer):
-        administrator = self.request.user.companyadministrator
         instance_data = serializer.validated_data
+        administrator = instance_data['administrator']
         date = instance_data['date']
         time = instance_data['time']
         duration = instance_data['duration']
         end_time = (datetime.combine(date, time) + duration).time()
 
-        slots = PickupSlot.objects.filter(
-            administrator=administrator,
-            date=date
-        )
+        slots = administrator.company.pickup_slots.all()
 
         for slot in slots:
-            existing_start_time = slot.time
-            existing_end_time = (datetime.combine(slot.date, existing_start_time) + slot.duration).time()
+            if slot.date == date:
+                existing_start_time = slot.time
+                existing_end_time = (datetime.combine(slot.date, existing_start_time) + slot.duration).time()
 
-            new_start_datetime = datetime.combine(date, time)
-            new_end_datetime = datetime.combine(date, end_time)
-            existing_start_datetime = datetime.combine(slot.date, existing_start_time)
-            existing_end_datetime = datetime.combine(slot.date, existing_end_time)
+                new_start_datetime = datetime.combine(date, time)
+                new_end_datetime = datetime.combine(date, end_time)
+                existing_start_datetime = datetime.combine(slot.date, existing_start_time)
+                existing_end_datetime = datetime.combine(slot.date, existing_end_time)
 
-            if (new_start_datetime < existing_end_datetime and new_end_datetime > existing_start_datetime):
-                raise ValidationError(
-                    "Administrator is already assigned to another pickup slot during this time."
-                )
+                if (new_start_datetime < existing_end_datetime and new_end_datetime > existing_start_datetime):
+                    raise ValidationError(
+                        "A pickup slot conflict exists with another slot in the same company."
+                    )
 
         # No conflicts, save the slot
         serializer.save(administrator=administrator, company=administrator.company)
@@ -158,6 +164,7 @@ class PickupSlotReserveView(generics.UpdateAPIView):
         return Response({"detail": "Slot reserved successfully"})
     
 class ReservedUsersListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     serializer_class = ReservedUsersSerializer
 
     def get_queryset(self):
@@ -194,6 +201,7 @@ class ReservedPickupSlotsView(generics.ListAPIView):
         )
         
 class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     def destroy(self, request, *args, **kwargs):
         company_id = kwargs.get('company_id')
         equipment_id = kwargs.get('equipment_id')
@@ -218,6 +226,7 @@ class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
             return Response({"error": "Internal Server Error"}, status=500)
         
 class ConfirmPickupView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializer 
 
@@ -381,3 +390,18 @@ class CompanyAnalyticsView(generics.ListAPIView):
             return Response(data)
         except Company.DoesNotExist:
             return Response({"error": "Company not found"}, status=404)
+        
+class UsersReservedListView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]  
+      
+    def get(self, request, *args, **kwargs):
+        company_admin = CompanyAdministrator.objects.get(account=request.user)
+        company = company_admin.company
+        
+        reserved_slots = PickupSlot.objects.filter(company=company, reserved_by__isnull=False)
+
+        reserved_users = Account.objects.filter(reserved_slots__in=reserved_slots).distinct()
+
+        users_data = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email} for user in reserved_users]
+
+        return Response(users_data)

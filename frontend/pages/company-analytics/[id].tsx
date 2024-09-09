@@ -100,14 +100,13 @@ const AnalyticsPage: React.FC = () => {
   
   const revenueMonthly = Object.values(data?.revenue.months || {});
 
-   return (
-    <div>
-      <h1>Company Analytics</h1>
+  return (
+    <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
+      <h1 className="text-4xl font-bold mb-6 text-white text-center">Company Analytics</h1>
 
       {data && (
         <>
-          {/* Average Rating Horizontal Bar Chart */}
-          <h2>Average Company Rating</h2>
+          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Average Company Rating</h2>
           <Bar
             data={{
               labels: ['Average Rating'],
@@ -134,16 +133,15 @@ const AnalyticsPage: React.FC = () => {
                 title: {
                   display: true,
                   text: 'Average Company Rating (0-5)',
+                  color: 'white',
                 },
               },
             }}
           />
 
-          {/* Created and Reserved Slots Line Charts */}
-          <h2>Created and Reserved Slots</h2>
+          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Created and Reserved Slots</h2>
 
-          {/* Monthly */}
-          <h3>Monthly</h3>
+          <h3 className="text-xl font-semibold text-white mt-4">Monthly</h3>
           <Line
             data={{
               labels: months,
@@ -172,13 +170,13 @@ const AnalyticsPage: React.FC = () => {
                 title: {
                   display: true,
                   text: 'Monthly Created and Reserved Slots',
+                  color: 'white',
                 },
               },
             }}
           />
 
-          {/* Quarterly */}
-          <h3>Quarterly</h3>
+          <h3 className="text-xl font-semibold text-white mt-4">Quarterly</h3>
           <Line
             data={{
               labels: quarters,
@@ -207,13 +205,13 @@ const AnalyticsPage: React.FC = () => {
                 title: {
                   display: true,
                   text: 'Quarterly Created and Reserved Slots',
+                  color: 'white',
                 },
               },
             }}
           />
 
-          {/* Annually */}
-          <h3>Annually</h3>
+          <h3 className="text-xl font-semibold text-white mt-4">Annually</h3>
           <Line
             data={{
               labels: years,
@@ -242,13 +240,13 @@ const AnalyticsPage: React.FC = () => {
                 title: {
                   display: true,
                   text: 'Annually Created and Reserved Slots',
+                  color: 'white',
                 },
               },
             }}
           />
 
-          {/* Revenue Line Chart */}
-          <h2>Monthly Revenue</h2>
+          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Monthly Revenue</h2>
           <Line
             data={{
               labels: months,
@@ -269,6 +267,7 @@ const AnalyticsPage: React.FC = () => {
                 title: {
                   display: true,
                   text: 'Monthly Revenue',
+                  color: 'white',
                 },
               },
             }}

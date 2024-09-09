@@ -84,7 +84,7 @@ const CompanyAdminHomePage: React.FC = () => {
             <ul className='text-center'>
                 <li>
                 <button 
-                    onClick={() => navigateTo('/admin/reservations')} 
+                    onClick={() => navigateTo('/reserved-user-list')} 
                     className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4">
                     List of Registered Users with Reservations
                 </button>
