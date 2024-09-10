@@ -85,15 +85,37 @@ class AddEquipmentToCompanyView(generics.UpdateAPIView):
             print(f"Error during add equipment: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
         
+
 class RemoveEquipmentFromCompanyView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsCompanyAdmin]
 
+    @transaction.atomic       
     def destroy(self, request, *args, **kwargs):
         company_equipment_id = kwargs.get('equipment_pk') 
         quantity_to_remove = request.data.get('quantity', 1)
 
         try:
-            company_equipment = CompanyEquipment.objects.get(pk=company_equipment_id)
+            company_equipment = CompanyEquipment.objects.select_for_update().get(pk=company_equipment_id)
+
+            pickup_slots = PickupSlot.objects.filter(
+                company=company_equipment.company,
+                reserved_by__isnull=False,
+                is_expired=False,
+                is_picked_up=False
+            )
+            reserved_quantity = 0
+            for slot in pickup_slots:
+                if slot.reserved_equipment and isinstance(slot.reserved_equipment, list):
+                    for item in slot.reserved_equipment:
+                        if item.get('equipment_id') == company_equipment.equipment_id:
+                            reserved_quantity += item.get('quantity')
+
+            available_quantity = company_equipment.quantity - reserved_quantity
+
+            if quantity_to_remove > available_quantity:
+                return Response({
+                    "error": f"You cannot remove {quantity_to_remove} units. Only {available_quantity} units are available for removal."
+                }, status=400)
 
             if company_equipment.quantity > quantity_to_remove:
                 company_equipment.quantity -= quantity_to_remove
@@ -212,6 +234,27 @@ class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
                 company_id=company_id, equipment_id=equipment_id
             )
 
+            pickup_slots = PickupSlot.objects.filter(
+                company_id=company_id,
+                reserved_by__isnull=False,
+                is_expired=False,
+                is_picked_up=False
+            )
+
+            reserved_quantity = 0
+            for slot in pickup_slots:
+                if slot.reserved_equipment and isinstance(slot.reserved_equipment, list):
+                    for item in slot.reserved_equipment:
+                        if item.get('equipment_id') == equipment_id:
+                            reserved_quantity += item.get('quantity')
+
+            available_quantity = company_equipment.quantity - reserved_quantity
+
+            if quantity_to_remove > available_quantity:
+                return Response({
+                    "error": f"You cannot remove {quantity_to_remove} units. Only {available_quantity} units are available for removal."
+                }, status=400)
+            
             if company_equipment.quantity > quantity_to_remove:
                 company_equipment.quantity -= quantity_to_remove
                 company_equipment.save()

@@ -6,7 +6,7 @@ from .models import Company, CompanyEquipment, PickupSlot
 from rest_framework import serializers
 from geopy.geocoders import Nominatim
 from profiles.serializers import CompanyAdministratorSerializer
-
+import json
 
 
 class CompanyFullSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class CompanyEquipmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'equipment', 'quantity']
 
 class CompanyProfileSerializer(serializers.ModelSerializer):
-    equipment = CompanyEquipmentSerializer(source='company_equipments', many=True, read_only=True)
+    equipment = serializers.SerializerMethodField()
     pickup_slots = serializers.SerializerMethodField()
     latitude = serializers.SerializerMethodField()
     longitude = serializers.SerializerMethodField()
@@ -50,6 +50,38 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         except Exception as e:
             print(f"Error during geocoding: {e}")
             return None, None
+    
+    def get_equipment(self, obj):
+        company_equipments = CompanyEquipment.objects.filter(company=obj)
+        
+        equipment_quantities = {eq.equipment.id: eq.quantity for eq in company_equipments}
+        
+        pickup_slots = PickupSlot.objects.filter(company=obj, reserved_by__isnull=False, is_expired=False, is_picked_up=False)
+        
+        for slot in pickup_slots:
+            reserved_items = slot.reserved_equipment
+            if reserved_items and isinstance(reserved_items, list):
+                for item in reserved_items:
+                    equipment_id = item.get('equipment_id')
+                    quantity = item.get('quantity')
+                    if equipment_id in equipment_quantities:
+                        equipment_quantities[equipment_id] -= quantity
+        
+        
+        equipment_list = []
+        for company_eq in company_equipments:
+            equipment_id = company_eq.equipment.id
+            remaining_quantity = equipment_quantities.get(equipment_id, 0)
+            if remaining_quantity > 0:
+                equipment_list.append({
+                    'id': equipment_id,
+                    'name': company_eq.equipment.equipment_name,
+                    'description' : company_eq.equipment.description,
+                    'picture_url' : company_eq.equipment.picture_url,
+                    'quantity': remaining_quantity
+                })
+        
+        return equipment_list
     
     def get_pickup_slots(self, obj):
         unreserved_slots = PickupSlot.objects.filter(company=obj, reserved_by=None, is_expired=False)

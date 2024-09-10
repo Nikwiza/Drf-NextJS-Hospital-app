@@ -34,9 +34,9 @@ const EquipmentList: React.FC = () => {
   const [messageColor, setMessageColor] = useState<string>('text-green-500');
 
 
-  const displayMessage = (msg: string) => {
+  const displayMessage = (msg: string, color: string = 'text-green-500') => {
     setMessage(msg);
-    setMessageColor('text-green-500');
+    setMessageColor(color);
     setTimeout(() => {
       setMessage(null);
     }, 2000);
@@ -173,7 +173,10 @@ const EquipmentList: React.FC = () => {
         displayMessage('Equipment removed successfully');
         fetchEquipmentList();
       } else {
-        console.error('Failed to remove equipment from the company');
+        const errorData = await response.json();
+        console.error('Failed to remove equipment from the company', errorData);
+        const errorMessage = errorData.error || 'Failed to remove equipment';
+        displayMessage(errorMessage, 'text-red-500');   
       }
     } catch (error) {
       console.error('Error during fetch: ', error);
@@ -201,7 +204,7 @@ const EquipmentList: React.FC = () => {
   }
 
   return (
-    <div className="w-max mx-auto bg-slate-700 p-8 border rounded-lg shadow-lg mt-8">
+    <div className="w-screen mx-auto bg-slate-800 p-8 border rounded-lg shadow-lg mt-8">
       <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
       <div className="flex gap-8">
         <div className="flex-1">
@@ -214,7 +217,7 @@ const EquipmentList: React.FC = () => {
             className="mb-4 p-2 border rounded-md"
           />
           {filteredOwnedEquipment.map((equipment) => (
-            <div key={equipment.id} className="max-w-md h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
+            <div key={equipment.id} className="h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
               <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment.equipment_name}</h3>
               <p className="text-white mb-2">Description: {equipment.equipment.description}</p>
               <img src={equipment.equipment.picture_url} alt={equipment.equipment.equipment_name} className="w-80 h-auto pb-2" />
@@ -232,14 +235,19 @@ const EquipmentList: React.FC = () => {
               </div>
               <button
                 className="text-white bg-red-600 px-2 py-1 mt-2 rounded-md"
-                onClick={() => handleRemoveEquipment(equipment.id)} //ovde pravi problem
+                onClick={() => handleRemoveEquipment(equipment.id)}
               >
                 Remove
               </button>
             </div>
           ))}
+          {message && (
+            <div className={`mb-4 ${messageColor} text-left font-bold`}>
+              {message}
+            </div>
+          )}
         </div>
-
+          
         {/* Unowned Equipment Column */}
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-2 text-gray-300">Unowned Equipment</h3>
@@ -251,7 +259,7 @@ const EquipmentList: React.FC = () => {
             className="mb-4 p-2 border rounded-md"
           />
           {filteredUnownedEquipment.map((equipment) => (
-            <div key={equipment.id} className=" h-auto border p-4 mb-4 bg-green-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
+            <div key={equipment.id} className="h-auto border p-4 mb-4 bg-slate-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
               <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
               <p className="text-white mb-2">Description: {equipment.description}</p>
               <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-80 h-auto pb-2" />
@@ -275,11 +283,6 @@ const EquipmentList: React.FC = () => {
               </button>
             </div>
           ))}
-          {message && (
-            <div className={`mb-4 ${messageColor} text-center font-bold`}>
-              {message}
-            </div>
-          )}
         </div>
       </div>
     </div>

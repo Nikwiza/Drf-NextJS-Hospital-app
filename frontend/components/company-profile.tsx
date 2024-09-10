@@ -17,11 +17,9 @@ const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ss
 
 interface CompanyEquipment {
   id: number;
-  equipment: {
-    equipment_name: string;
-    description: string;
-    picture_url: string;
-  }
+  name: string;
+  description: string;
+  picture_url: string;
   quantity: number;
 }
 
