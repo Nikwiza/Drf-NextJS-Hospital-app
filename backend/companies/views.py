@@ -2,13 +2,14 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
 from .models import Company, CompanyEquipment, PickupSlot
-from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer, PickupSlotSerializerCreate
+from .serializers import SimplePickupSlotSerializer, CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer, PickupSlotSerializerCreate
 from equipment.serializers import EquipmentSerializer
 from equipment.models import Equipment
 from user.models import Account
 from user.serializers import ReservedUsersSerializer
 from rest_framework.permissions import IsAuthenticated
 from profiles.permissions import IsCompanyAdmin
+from profiles.models import CompanyAdministrator
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import timedelta, datetime
@@ -175,6 +176,19 @@ class WorkCalendarListView(generics.ListAPIView):
 
     def get_queryset(self):
         company_id = self.kwargs['pk']
+        return PickupSlot.objects.filter(company_id=company_id).order_by('date', 'time')
+    
+class WorkCalendarCompanyListView(generics.ListAPIView):
+    serializer_class = SimplePickupSlotSerializer
+    permission_classes=[IsCompanyAdmin]
+
+    def get_queryset(self):
+        try:
+            company_admin = CompanyAdministrator.objects.get(account=self.request.user)
+            company_id = company_admin.company.id
+        except CompanyAdministrator.DoesNotExist:
+            return PickupSlot.objects.none()
+    
         return PickupSlot.objects.filter(company_id=company_id).order_by('date', 'time')
     
 class CompanyEquipmentViewSet(generics.ListCreateAPIView):

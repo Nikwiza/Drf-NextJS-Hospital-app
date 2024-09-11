@@ -116,3 +116,16 @@ class CompanyAdministratorSerializer(serializers.ModelSerializer):
     def get_company_name(self, obj):
         return obj.company.company_name
     
+
+class SimpleAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'name']
+
+
+class SimpleCompanyAdministratorSerializer(serializers.ModelSerializer):
+    account = SimpleAccountSerializer() 
+
+    class Meta:
+        model = CompanyAdministrator
+        fields = ['id', 'account']
