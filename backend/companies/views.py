@@ -304,7 +304,7 @@ class ConfirmPickupView(generics.UpdateAPIView):
             pickup_slot.is_picked_up = True
             pickup_slot.save() 
 
-            self.send_confirmation_email(pickup_slot)
+            self.send_confirmation_email(pickup_slot, company)
 
             return Response({"detail": "Pickup confirmed and equipment updated"}, status=200)
 
@@ -314,10 +314,10 @@ class ConfirmPickupView(generics.UpdateAPIView):
             print(f"Error during confirming pickup: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
 
-    def send_confirmation_email(self, pickup_slot):
+    def send_confirmation_email(self, pickup_slot, company):
         user_email = pickup_slot.reserved_by.email
         subject = "Equipment Pickup Confirmation"
-        message = f"Dear {pickup_slot.reserved_by.first_name},\n\nYou have successfully picked up the following equipment: {pickup_slot.reserved_equipment}. Thank you!\n\nBest regards,\nYour Company."
+        message = f"Dear {pickup_slot.reserved_by.first_name},\n\nYou have successfully picked up the equipment. Thank you!\n\nBest regards,\nYour {company.company_name}."
 
         send_mail(
             subject,

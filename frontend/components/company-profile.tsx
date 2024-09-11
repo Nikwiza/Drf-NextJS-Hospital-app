@@ -9,7 +9,7 @@ import { LatLngTuple } from 'leaflet';
 import iconMarker from 'leaflet/dist/images/marker-icon.png'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-
+import Navbar from '../app/Navbar';
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
@@ -288,7 +288,9 @@ const CompanyProfile: React.FC = () => {
   });
 
   return (
-    <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
+    <div>
+      <Navbar/>
+      <div className="w-full mx-auto p-8 bg-slate-800 border rounded-lg shadow-lg">
       <h1 className="text-4xl font-bold mb-6 text-white text-center">{company.company_name}</h1>
       <div className="grid grid-cols-2 gap-8">
         <div>
@@ -459,6 +461,8 @@ const CompanyProfile: React.FC = () => {
         </div>
       </div>
     </div>
+    </div>
+    
   );
 };
 

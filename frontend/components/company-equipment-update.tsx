@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import "@/styles/globals.css";
+import Navbar from '../app/Navbar';
 
 interface CompanyEquipment {
   id: number;
@@ -204,88 +205,92 @@ const EquipmentList: React.FC = () => {
   }
 
   return (
-    <div className="w-screen mx-auto bg-slate-800 p-8 border rounded-lg shadow-lg mt-8">
-      <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
-      <div className="flex gap-8">
-        <div className="flex-1">
-          <h3 className="text-lg font-bold mb-2 text-gray-300">Owned Equipment</h3>
-          <input
-            type="text"
-            placeholder="Search owned equipment..."
-            value={searchTerm1}
-            onChange={(e) => setSearchTerm1(e.target.value)}
-            className="mb-4 p-2 border rounded-md"
-          />
-          {filteredOwnedEquipment.map((equipment) => (
-            <div key={equipment.id} className="h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
-              <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment.equipment_name}</h3>
-              <p className="text-white mb-2">Description: {equipment.equipment.description}</p>
-              <img src={equipment.equipment.picture_url} alt={equipment.equipment.equipment_name} className="w-80 h-auto pb-2" />
-              <div className="mb-2">
-                <label className="text-white mr-2">Quantity:</label>
-                <select
-                  value={ownedQuantities[equipment.id] || 1}
-                  onChange={(e) => handleQuantityChange(equipment.id, parseInt(e.target.value, 10), true)}
-                  className="p-1 border rounded-md"
+    <div>
+      <Navbar/>
+      <div className="w-screen mx-auto bg-slate-800 p-8 border rounded-lg shadow-lg mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
+        <div className="flex gap-8">
+          <div className="flex-1">
+            <h3 className="text-lg font-bold mb-2 text-gray-300">Owned Equipment</h3>
+            <input
+              type="text"
+              placeholder="Search owned equipment..."
+              value={searchTerm1}
+              onChange={(e) => setSearchTerm1(e.target.value)}
+              className="mb-4 p-2 border rounded-md"
+            />
+            {filteredOwnedEquipment.map((equipment) => (
+              <div key={equipment.id} className="h-auto border p-4 mb-4 bg-yellow-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
+                <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment.equipment_name}</h3>
+                <p className="text-white mb-2">Description: {equipment.equipment.description}</p>
+                <img src={equipment.equipment.picture_url} alt={equipment.equipment.equipment_name} className="w-80 h-auto pb-2" />
+                <div className="mb-2">
+                  <label className="text-white mr-2">Quantity:</label>
+                  <select
+                    value={ownedQuantities[equipment.id] || 1}
+                    onChange={(e) => handleQuantityChange(equipment.id, parseInt(e.target.value, 10), true)}
+                    className="p-1 border rounded-md"
+                  >
+                    {Array.from({length: parseInt(equipment.quantity.toString())}, (_, i) => i + 1).map(q => (
+                      <option key={q} value={q}>{q}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  className="text-white bg-red-600 px-2 py-1 mt-2 rounded-md"
+                  onClick={() => handleRemoveEquipment(equipment.id)}
                 >
-                  {Array.from({length: parseInt(equipment.quantity.toString())}, (_, i) => i + 1).map(q => (
-                    <option key={q} value={q}>{q}</option>
-                  ))}
-                </select>
+                  Remove
+                </button>
               </div>
-              <button
-                className="text-white bg-red-600 px-2 py-1 mt-2 rounded-md"
-                onClick={() => handleRemoveEquipment(equipment.id)}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          {message && (
-            <div className={`mb-4 ${messageColor} text-left font-bold`}>
-              {message}
-            </div>
-          )}
-        </div>
-          
-        {/* Unowned Equipment Column */}
-        <div className="flex-1">
-          <h3 className="text-lg font-bold mb-2 text-gray-300">Unowned Equipment</h3>
-          <input
-            type="text"
-            placeholder="Search unowned equipment..."
-            value={searchTerm2}
-            onChange={(e) => setSearchTerm2(e.target.value)}
-            className="mb-4 p-2 border rounded-md"
-          />
-          {filteredUnownedEquipment.map((equipment) => (
-            <div key={equipment.id} className="h-auto border p-4 mb-4 bg-slate-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
-              <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
-              <p className="text-white mb-2">Description: {equipment.description}</p>
-              <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-80 h-auto pb-2" />
-              <div className="mb-2">
-                <label className="text-white mr-2">Quantity:</label>
-                <select
-                  value={unownedQuantities[equipment.id] || 1}
-                  onChange={(e) => handleQuantityChange(equipment.id, parseInt(e.target.value, 10), false)}
-                  className="p-1 border rounded-md"
+            ))}
+            {message && (
+              <div className={`mb-4 ${messageColor} text-left font-bold`}>
+                {message}
+              </div>
+            )}
+          </div>
+            
+          {/* Unowned Equipment Column */}
+          <div className="flex-1">
+            <h3 className="text-lg font-bold mb-2 text-gray-300">Unowned Equipment</h3>
+            <input
+              type="text"
+              placeholder="Search unowned equipment..."
+              value={searchTerm2}
+              onChange={(e) => setSearchTerm2(e.target.value)}
+              className="mb-4 p-2 border rounded-md"
+            />
+            {filteredUnownedEquipment.map((equipment) => (
+              <div key={equipment.id} className="h-auto border p-4 mb-4 bg-slate-600 border-gray-300 rounded-md shadow-md flex flex-col items-center">
+                <h3 className="text-xl font-bold mb-2 text-white">{equipment.equipment_name}</h3>
+                <p className="text-white mb-2">Description: {equipment.description}</p>
+                <img src={equipment.picture_url} alt={equipment.equipment_name} className="w-80 h-auto pb-2" />
+                <div className="mb-2">
+                  <label className="text-white mr-2">Quantity:</label>
+                  <select
+                    value={unownedQuantities[equipment.id] || 1}
+                    onChange={(e) => handleQuantityChange(equipment.id, parseInt(e.target.value, 10), false)}
+                    className="p-1 border rounded-md"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(q => (
+                      <option key={q} value={q}>{q}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  className="text-white bg-green-600 px-2 py-1 mt-2 rounded-md"
+                  onClick={() => handleAddEquipment(equipment.id)}
                 >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(q => (
-                    <option key={q} value={q}>{q}</option>
-                  ))}
-                </select>
+                  Add
+                </button>
               </div>
-              <button
-                className="text-white bg-green-600 px-2 py-1 mt-2 rounded-md"
-                onClick={() => handleAddEquipment(equipment.id)}
-              >
-                Add
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
+    
   );
 };
 

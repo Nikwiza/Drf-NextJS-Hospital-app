@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { useRouter } from 'next/router';
+import Navbar from '../../app/Navbar';
 
 // Register Chart.js components
 ChartJS.register(
@@ -101,179 +102,182 @@ const AnalyticsPage: React.FC = () => {
   const revenueMonthly = Object.values(data?.revenue.months || {});
 
   return (
-    <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
-      <h1 className="text-4xl font-bold mb-6 text-white text-center">Company Analytics</h1>
+    <div>
+      <Navbar/>
+      <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold mb-6 text-white text-center">Company Analytics</h1>
 
-      {data && (
-        <>
-          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Average Company Rating</h2>
-          <Bar
-            data={{
-              labels: ['Average Rating'],
-              datasets: [
-                {
-                  label: 'Rating',
-                  data: [data.average_rating],
-                  backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                  borderColor: 'rgba(54, 162, 235, 1)',
-                  borderWidth: 1,
+        {data && (
+          <>
+            <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Average Company Rating</h2>
+            <Bar
+              data={{
+                labels: ['Average Rating'],
+                datasets: [
+                  {
+                    label: 'Rating',
+                    data: [data.average_rating],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                  },
+                ],
+              }}
+              options={{
+                indexAxis: 'y',
+                scales: {
+                  x: {
+                    min: 0,
+                    max: 5,
+                  },
                 },
-              ],
-            }}
-            options={{
-              indexAxis: 'y',
-              scales: {
-                x: {
-                  min: 0,
-                  max: 5,
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: 'Average Company Rating (0-5)',
+                    color: 'white',
+                  },
                 },
-              },
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Average Company Rating (0-5)',
-                  color: 'white',
-                },
-              },
-            }}
-          />
+              }}
+            />
 
-          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Created and Reserved Slots</h2>
+            <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Created and Reserved Slots</h2>
 
-          <h3 className="text-xl font-semibold text-white mt-4">Monthly</h3>
-          <Line
-            data={{
-              labels: months,
-              datasets: [
-                {
-                  label: 'Created Slots',
-                  data: createdSlotsMonthly,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
+            <h3 className="text-xl font-semibold text-white mt-4">Monthly</h3>
+            <Line
+              data={{
+                labels: months,
+                datasets: [
+                  {
+                    label: 'Created Slots',
+                    data: createdSlotsMonthly,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                  {
+                    label: 'Reserved Slots',
+                    data: reservedSlotsMonthly,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: 'Monthly Created and Reserved Slots',
+                    color: 'white',
+                  },
                 },
-                {
-                  label: 'Reserved Slots',
-                  data: reservedSlotsMonthly,
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Monthly Created and Reserved Slots',
-                  color: 'white',
-                },
-              },
-            }}
-          />
+              }}
+            />
 
-          <h3 className="text-xl font-semibold text-white mt-4">Quarterly</h3>
-          <Line
-            data={{
-              labels: quarters,
-              datasets: [
-                {
-                  label: 'Created Slots',
-                  data: createdSlotsQuarterly,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
+            <h3 className="text-xl font-semibold text-white mt-4">Quarterly</h3>
+            <Line
+              data={{
+                labels: quarters,
+                datasets: [
+                  {
+                    label: 'Created Slots',
+                    data: createdSlotsQuarterly,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                  {
+                    label: 'Reserved Slots',
+                    data: reservedSlotsQuarterly,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: 'Quarterly Created and Reserved Slots',
+                    color: 'white',
+                  },
                 },
-                {
-                  label: 'Reserved Slots',
-                  data: reservedSlotsQuarterly,
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Quarterly Created and Reserved Slots',
-                  color: 'white',
-                },
-              },
-            }}
-          />
+              }}
+            />
 
-          <h3 className="text-xl font-semibold text-white mt-4">Annually</h3>
-          <Line
-            data={{
-              labels: years,
-              datasets: [
-                {
-                  label: 'Created Slots',
-                  data: createdSlotsAnnually,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
+            <h3 className="text-xl font-semibold text-white mt-4">Annually</h3>
+            <Line
+              data={{
+                labels: years,
+                datasets: [
+                  {
+                    label: 'Created Slots',
+                    data: createdSlotsAnnually,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                  {
+                    label: 'Reserved Slots',
+                    data: reservedSlotsAnnually,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: 'Annually Created and Reserved Slots',
+                    color: 'white',
+                  },
                 },
-                {
-                  label: 'Reserved Slots',
-                  data: reservedSlotsAnnually,
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
-                },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Annually Created and Reserved Slots',
-                  color: 'white',
-                },
-              },
-            }}
-          />
+              }}
+            />
 
-          <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Monthly Revenue</h2>
-          <Line
-            data={{
-              labels: months,
-              datasets: [
-                {
-                  label: 'Revenue',
-                  data: revenueMonthly,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  borderWidth: 2,
-                  fill: true,
+            <h2 className="text-2xl font-semibold text-white mt-6 mb-4">Monthly Revenue</h2>
+            <Line
+              data={{
+                labels: months,
+                datasets: [
+                  {
+                    label: 'Revenue',
+                    data: revenueMonthly,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: 'Monthly Revenue',
+                    color: 'white',
+                  },
                 },
-              ],
-            }}
-            options={{
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: 'Monthly Revenue',
-                  color: 'white',
-                },
-              },
-            }}
-          />
-        </>
-      )}
+              }}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
