@@ -10,6 +10,7 @@ from user.models import Account
 from django.db import transaction
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
+from profiles.permissions import IsSystemAdmin
 
 
 class GetComplaintView(generics.ListAPIView):
@@ -29,8 +30,7 @@ class ComplaintGroupedByUserView(APIView):
     
 class UpdateAdminAnswerView(APIView):
 
-    permission_classes = [AllowAny]  # Ensure only admins can access this view
-
+    permission_classes = [IsSystemAdmin]  
     @transaction.atomic
     def post(self, request):
 
