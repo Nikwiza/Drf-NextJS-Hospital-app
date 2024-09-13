@@ -15,14 +15,25 @@ const Navbar = () => {
   const companyAdminNavigation = [
     { name: "Home", href: "/company-admin-homepage" },
     { name: "Profile", href: "/company-admin-profile" },
+    { name: "Calendar", href: "/company-calendar" },
+    { name: "Equipment", href: "/equipment" },
+  ];
+
+  const systemAdminNavigation = [
+    { name: "Home", href: "/admin-dashboard" },
+    { name: "Profile", href: "/company-admin-profile" },
+    { name: "Equipment", href: "/equipment" },
   ];
 
   const regularNavigation = [
     { name: "Home", href: "/" },
-    { name: "Dashboard", href: "/dashboard" },
+    { name: "Equipment", href: "/equipment" },
   ];
 
-  const navigation = userInfo?.is_company_admin ? companyAdminNavigation : regularNavigation;
+  var navigation = userInfo?.is_company_admin ? companyAdminNavigation : regularNavigation;
+  if (userInfo?.is_admin){
+    navigation = systemAdminNavigation
+  }
 
   return (
     <>
@@ -34,7 +45,7 @@ const Navbar = () => {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <Image src="/logo 1.png" width={50} height={50} alt="star logo" />
+              <Image src="/logo 1.svg" width={50} height={50} alt="star logo" />
             </Link>
           </div>
           <div className="hidden lg:flex lg:gap-x-12">
@@ -105,7 +116,7 @@ const Navbar = () => {
                 <Image
                   width={50}
                   height={50}
-                  src="/logo 1.png"
+                  src="/logo 1.svg"
                   alt="star logo mobile"
                 />
               </Link>

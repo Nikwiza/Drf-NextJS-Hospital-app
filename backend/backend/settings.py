@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'equipment',
     'appointments',
     'complaints',
+    'leagues',
 ]
 
 MIDDLEWARE = [

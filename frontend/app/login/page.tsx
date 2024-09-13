@@ -128,7 +128,13 @@ const NextLoginPage = () => {
         }
       }
       else if (userData.is_admin) {
-        router.push("/admin-dashboard")
+        if (!userData.is_email_verified) {
+          router.push("/system-admin-password-change")
+        }
+        else {
+          router.push("/admin-dashboard")
+        }
+
       }
       else {
         if (!userData.is_email_verified) {

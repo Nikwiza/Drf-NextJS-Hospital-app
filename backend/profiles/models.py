@@ -8,4 +8,5 @@ class CompanyAdministrator(models.Model):
 
 class SystemAdmin(models.Model):
     account = models.OneToOneField(Account, on_delete=models.CASCADE) 
+    is_password_changed = models.BooleanField(default=False)
 

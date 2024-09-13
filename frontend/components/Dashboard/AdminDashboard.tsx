@@ -8,6 +8,7 @@ import CompanyModal from "./AddCompanyModal";
 import SystemAdminModal from "./AddSystemAdminModal";
 import CompanyAdminModal from "./AddCompanyAdminModal";
 import ComplaintModal from "./ComplaintsModal";
+import League from "./League";
 import { useState } from "react";
 
 
@@ -50,7 +51,7 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="col-span-12">
-          <SystemAdminTable openModal={()=>setAdminModal(true)}/>
+          <League/>
         </div>
       </div>
     </>

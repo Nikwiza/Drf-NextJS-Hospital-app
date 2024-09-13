@@ -89,3 +89,21 @@ class ChangePasswordView(APIView):
 
     def get(self, request, *args, **kwargs):
         return Response({'status': 'invalid_request'}, status=status.HTTP_400_BAD_REQUEST)
+    
+class ChangePasswordStandardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        form = PasswordChangeForm(user=request.user, data=request.data)
+
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            user.is_email_verified = True
+            user.save()
+            return Response({'status': 'password_changed'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        return Response({'status': 'invalid_request'}, status=status.HTTP_400_BAD_REQUEST)
