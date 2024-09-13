@@ -11,7 +11,7 @@ import { sendConfirmationEmail } from "@/services/Email";
 interface Account {
   id: number;
   email: string;
-  first_name: string;
+  name: string;
   last_name: string;
   phone_number: string;
   date_joined: string;
@@ -35,16 +35,16 @@ const NextLoginPage = () => {
     try {
       const authTokens = localStorage.getItem('authTokens');
       if (!authTokens) throw new Error("Tokens are missing");
-  
+
       let authTokensJson;
       try {
         authTokensJson = JSON.parse(authTokens);
       } catch {
         throw new Error("Tokens cannot be parsed");
       }
-  
+
       if (!authTokensJson?.access) throw new Error("Access token is missing");
-  
+
       const response = await fetch('http://localhost:8000/user/', {
         method: 'GET',
         headers: {
@@ -52,11 +52,11 @@ const NextLoginPage = () => {
           'Content-Type': 'application/json',
         }
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data: Account = await response.json();
       console.log('Fetched user data:', data);
       return data;
@@ -65,7 +65,7 @@ const NextLoginPage = () => {
       return null;
     }
   };
-  
+
 
   useEffect(() => {
     if (fetchedUserInfo) {
@@ -87,57 +87,63 @@ const NextLoginPage = () => {
     e.preventDefault();
     const email = e.target[0].value;
     const password = e.target[1].value;
-  
+
     if (!isValidEmail(email)) {
       setError("Email is invalid");
       toast.error("Email is invalid");
       return;
     }
-  
+
     if (!password || password.length < 8) {
       setError("Password is invalid");
       toast.error("Password is invalid");
       return;
     }
-  
+
     const res = await loginUser({
       email,
       password,
     });
-  
+
     if (!res?.success) {
       setError(res.detail);
       toast.error(res.detail);
     } else {
       setError("");
       toast.success("Successful login");
-  
+
       const userData = await fetchUserData();
-  
+
       if (!userData) {
         console.error('Failed to fetch user data.');
         return;
       }
-  
-      if (!userData.is_email_verified) {
-        sendConfirmationEmail();
-        router.push("/confirm");
-      } 
+
+
       if (userData.is_company_admin) {
-        if(userData.is_password_changed){
+        if (userData.is_password_changed) {
           router.push("/company-admin-homepage");
-        }else{
+        } else {
           router.push("/company-admin-password-change");
         }
       }
-       else {
-        router.push("/dashboard");
+      else if (userData.is_admin) {
+        router.push("/admin-dashboard")
+      }
+      else {
+        if (!userData.is_email_verified) {
+          sendConfirmationEmail();
+          router.push("/confirm");
+        }
+        else {
+          router.push("/equipment");
+        }
       }
     }
   };
 
   return (
-        true && ( 
+    true && (
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="flex justify-center flex-col items-center">
           <Image src="/logo 1.png" alt="star logo" width={50} height={50} />
@@ -187,7 +193,7 @@ const NextLoginPage = () => {
                 </div>
               </div>
 
-              
+
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -227,8 +233,8 @@ const NextLoginPage = () => {
 
             <div>
               <p className="text-red-600 text-center text-[16px] my-4">
-                  {error && error}
-                </p>
+                {error && error}
+              </p>
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ interface AccountUpdateFormProps {
 
 const AccountUpdateForm: React.FC<AccountUpdateFormProps> = ({ accountId }) => {
   const [accountInfo, setAccountInfo] = useState<{ [key: string]: string }>({
-    first_name: '',
+    name: '',
     last_name: '',
     email: '',
     phone_number: '',
@@ -75,7 +75,7 @@ const AccountUpdateForm: React.FC<AccountUpdateFormProps> = ({ accountId }) => {
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-slate-700 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4 text-white">Update Account Information</h1>
-      {updateStatus === "success-first_name" && (
+      {updateStatus === "success-name" && (
         <div className="mb-4 text-green-600">
           First name edited successfully!
         </div>
@@ -102,21 +102,21 @@ const AccountUpdateForm: React.FC<AccountUpdateFormProps> = ({ accountId }) => {
       )}
       <form>
         <div className="mb-4">
-          <label htmlFor="first_name" className="block text-white font-bold mb-2">
+          <label htmlFor="name" className="block text-white font-bold mb-2">
             First Name
           </label>
           <input
             type="text"
-            id="first_name"
-            name="first_name"
-            value={accountInfo.first_name}
+            id="name"
+            name="name"
+            value={accountInfo.name}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-indigo-500"
             required
           />
           <button
             type="button"
-            onClick={() => handleFieldSubmit("first_name")}
+            onClick={() => handleFieldSubmit("name")}
             className="mt-1 bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 focus:outline-none focus:bg-yellow-800"
           >
             Edit First Name

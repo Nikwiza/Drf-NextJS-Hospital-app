@@ -26,9 +26,10 @@ interface ComplaintDTO {
 
   interface ModalProps {
     setComplaint: React.Dispatch<React.SetStateAction<ComplaintDTO | null>>;
+    complaintModal: ComplaintDTO | null
   }
 
-const ChatCard = ({setComplaint}:ModalProps) => {
+const ChatCard = ({setComplaint, complaintModal}:ModalProps) => {
   const [complaintList, setComplaintList] = useState<Complaint[]>([])
   useEffect(() => {
 
@@ -51,7 +52,7 @@ const ChatCard = ({setComplaint}:ModalProps) => {
       .then((data: Complaint[]) =>
         setComplaintList(data)
       );
-  }, []);
+  }, [complaintModal]);
 
   const handleComplaintClick = (id:number, comment:string) =>{
     setComplaint({

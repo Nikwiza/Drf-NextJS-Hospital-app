@@ -22,8 +22,9 @@ const SystemAdminModal = ({onClose}:ModalProps) => {
         e.preventDefault();
         const email = e.target[0].value;
         const name = e.target[1].value;
-        const password = e.target[2].value;
-        const confirmPassword = e.target[3].value;
+        const last_name = e.target[2].value;
+        const password = e.target[3].value;
+        const confirmPassword = e.target[4].value;
     
         if (!isValidEmail(email)) {
           setError("Email is invalid");
@@ -55,6 +56,8 @@ const SystemAdminModal = ({onClose}:ModalProps) => {
               name:name,
               email:email,
               password:password,
+              last_name: last_name || "",
+              phone_number:'000000000'
             }),
           });
           if (res.status === 400 || res.status === 422) {
@@ -106,13 +109,29 @@ const SystemAdminModal = ({onClose}:ModalProps) => {
                         htmlFor="name"
                         className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                        Full name
+                        First name
                         </label>
                         <div className="mt-2">
                         <input
                             id="name"
                             name="name"
                             required
+                            className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                        htmlFor="last_name"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                        >
+                        Last name
+                        </label>
+                        <div className="mt-2">
+                        <input
+                            id="last_name"
+                            name="last_name"
                             className="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                         </div>

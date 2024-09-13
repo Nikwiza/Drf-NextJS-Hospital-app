@@ -4,7 +4,7 @@ import "@/styles/globals.css";
 
 interface User{
     id: number;
-    first_name: string;
+    name: string;
     last_name: string;
     email: string;
 }
@@ -151,7 +151,7 @@ const ReservedPickupSlotsPage: React.FC = () => {
                 <p className="text-white">Date: {slot.date}</p>
                 <p className="text-white">Time: {slot.time}</p>
                 <p className="text-white">Duration: {slot.duration}</p>
-                <p className='text-white'>Reserved by: {slot.reserved_by.first_name} {slot.reserved_by.last_name}</p>
+                <p className='text-white'>Reserved by: {slot.reserved_by.name} {slot.reserved_by.last_name}</p>
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                   onClick={() => handleConfirmPickup(slot.id)}
@@ -171,7 +171,7 @@ const ReservedPickupSlotsPage: React.FC = () => {
                 <p className="text-white">Date: {slot.date}</p>
                 <p className="text-white">Time: {slot.time}</p>
                 <p className="text-white">Duration: {slot.duration}</p>
-                <p className='text-white'>Reserved by: {slot.reserved_by.first_name} {slot.reserved_by.last_name}</p>
+                <p className='text-white'>Reserved by: {slot.reserved_by.name} {slot.reserved_by.last_name}</p>
               </li>
             ))}
           </ul>

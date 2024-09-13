@@ -8,6 +8,7 @@ import { getAccessToken } from "@/services/Token";
 
 interface ModalProps {
     onClose: () => void;
+    
   }
 
 const CompanyModal = ({onClose}:ModalProps) => {
@@ -23,7 +24,7 @@ const CompanyModal = ({onClose}:ModalProps) => {
     
         try {
           //TODO: Change the root of the backend later
-          const res = await fetch("http://localhost:8000/company", {
+          const res = await fetch("http://localhost:8000/company/", {
             method: "POST",
             headers: {
                 'Authorization': `Bearer ${getAccessToken()}`,
@@ -39,7 +40,7 @@ const CompanyModal = ({onClose}:ModalProps) => {
             toast.error("There has been a problem")
             setError("Problem while creating company");
           }
-          if (res.status === 200) {
+          if (res.ok) {
             setError("");
             toast.success("A company has been added");
             onClose()
@@ -60,7 +61,7 @@ const CompanyModal = ({onClose}:ModalProps) => {
                         className="cursor-pointer"/>
                 </div>
             
-                <form className="space-y-6" onSubmit={()=>{}}>
+                <form className="space-y-6" onSubmit={handleSubmit}>
 
 
                     <div>

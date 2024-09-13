@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 interface User {
   id: number;
-  first_name: string;
+  name: string;
   last_name: string;
   email: string;
 }
@@ -52,7 +52,7 @@ const ReservedUsersList: React.FC = () => {
         <ul className="text-white">
           {users.map((user) => (
             <li key={user.id} className="mb-4 border-b pb-2">
-              <span className="font-semibold">{user.first_name} {user.last_name}</span> ({user.email})
+              <span className="font-semibold">{user.name} {user.last_name}</span> ({user.email})
             </li>
           ))}
         </ul>

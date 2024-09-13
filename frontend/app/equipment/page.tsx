@@ -92,7 +92,11 @@ export default function Equipment() {
         },
     }
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok){
+          return []
+        }
+        return response.json()})
       .then((data: Equipment[]) =>
         dispatch({
           type: 'setEquipment',
@@ -126,6 +130,9 @@ export default function Equipment() {
   }
 
   const filteredEquipment = useMemo(() => {
+    if (!equipment){
+      return []
+    }
     return equipment.filter((eq: Equipment) => {
       const matchesSearch = eq.equipment_name.toLowerCase().includes(search.toLowerCase());
       const matchesType = filter.type === EquipmentType.Any || eq.equipment_type === filter.type;

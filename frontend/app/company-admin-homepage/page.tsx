@@ -9,7 +9,7 @@ interface CompanyAdministrator {
     company_name: string;
     company_id: number; 
     account: {
-        first_name: string;
+        name: string;
         last_name: string;
         phone_number: string;
         email: string;

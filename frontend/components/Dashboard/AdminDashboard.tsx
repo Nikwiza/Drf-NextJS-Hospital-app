@@ -38,7 +38,7 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="col-span-12 sm:col-span-6">
-          <ChatCard setComplaint={setComplaintModal}/>
+          <ChatCard setComplaint={setComplaintModal} complaintModal={complaintModal}/>
         </div>
 
         <div className="col-span-12 sm:col-span-6">
