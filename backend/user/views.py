@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from rest_framework.generics import RetrieveAPIView
-from .serializers import AccountSerializer
+from rest_framework.generics import UpdateAPIView
+from .serializers import AccountSerializer, AccountUpdateSerializer
 
 
 
@@ -61,3 +61,16 @@ def getUserAccount(request):
     user = request.user
     serializer = AccountSerializer(user)
     return Response(serializer.data)
+
+class AccountUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        user = request.user
+        serializer = AccountUpdateSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Account updated successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'error', 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

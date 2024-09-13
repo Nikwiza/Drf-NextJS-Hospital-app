@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.response import Response
+
+from profiles.models import CompanyAdministrator
 from .models import Company, CompanyEquipment, PickupSlot
 from .serializers import CompanyEquipmentSerializer, CompanyFullSerializer, CompanyProfileSerializer, CompanyUpdateSerializer, PickupSlotSerializer, PickupSlotSerializerCreate
 from equipment.serializers import EquipmentSerializer
@@ -28,6 +30,7 @@ class CompanyProfileView(generics.RetrieveAPIView):
     lookup_field = 'pk'
 
 class CompanyUpdateView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = Company.objects.all()
     serializer_class = CompanyUpdateSerializer
     lookup_field = 'pk'
@@ -56,6 +59,8 @@ class EquipmentListView(generics.ListAPIView):
             return Equipment.objects.none()
         
 class AddEquipmentToCompanyView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
     def update(self, request, *args, **kwargs):
         company_id = kwargs.get('company_pk')
         equipment_id = kwargs.get('equipment_pk')
@@ -80,13 +85,37 @@ class AddEquipmentToCompanyView(generics.UpdateAPIView):
             print(f"Error during add equipment: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
         
+
 class RemoveEquipmentFromCompanyView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
+
+    @transaction.atomic       
     def destroy(self, request, *args, **kwargs):
         company_equipment_id = kwargs.get('equipment_pk') 
         quantity_to_remove = request.data.get('quantity', 1)
 
         try:
-            company_equipment = CompanyEquipment.objects.get(pk=company_equipment_id)
+            company_equipment = CompanyEquipment.objects.select_for_update().get(pk=company_equipment_id)
+
+            pickup_slots = PickupSlot.objects.filter(
+                company=company_equipment.company,
+                reserved_by__isnull=False,
+                is_expired=False,
+                is_picked_up=False
+            )
+            reserved_quantity = 0
+            for slot in pickup_slots:
+                if slot.reserved_equipment and isinstance(slot.reserved_equipment, list):
+                    for item in slot.reserved_equipment:
+                        if item.get('equipment_id') == company_equipment.equipment_id:
+                            reserved_quantity += item.get('quantity')
+
+            available_quantity = company_equipment.quantity - reserved_quantity
+
+            if quantity_to_remove > available_quantity:
+                return Response({
+                    "error": f"You cannot remove {quantity_to_remove} units. Only {available_quantity} units are available for removal."
+                }, status=400)
 
             if company_equipment.quantity > quantity_to_remove:
                 company_equipment.quantity -= quantity_to_remove
@@ -106,36 +135,35 @@ class PickupSlotListView(generics.ListCreateAPIView):
     serializer_class = PickupSlotSerializer
         
 class CreatePickupSlotView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializerCreate
 
     @transaction.atomic
     def perform_create(self, serializer):
-        administrator = self.request.user.companyadministrator
         instance_data = serializer.validated_data
+        administrator = instance_data['administrator']
         date = instance_data['date']
         time = instance_data['time']
         duration = instance_data['duration']
         end_time = (datetime.combine(date, time) + duration).time()
 
-        slots = PickupSlot.objects.filter(
-            administrator=administrator,
-            date=date
-        )
+        slots = administrator.company.pickup_slots.all()
 
         for slot in slots:
-            existing_start_time = slot.time
-            existing_end_time = (datetime.combine(slot.date, existing_start_time) + slot.duration).time()
+            if slot.date == date:
+                existing_start_time = slot.time
+                existing_end_time = (datetime.combine(slot.date, existing_start_time) + slot.duration).time()
 
-            new_start_datetime = datetime.combine(date, time)
-            new_end_datetime = datetime.combine(date, end_time)
-            existing_start_datetime = datetime.combine(slot.date, existing_start_time)
-            existing_end_datetime = datetime.combine(slot.date, existing_end_time)
+                new_start_datetime = datetime.combine(date, time)
+                new_end_datetime = datetime.combine(date, end_time)
+                existing_start_datetime = datetime.combine(slot.date, existing_start_time)
+                existing_end_datetime = datetime.combine(slot.date, existing_end_time)
 
-            if (new_start_datetime < existing_end_datetime and new_end_datetime > existing_start_datetime):
-                raise ValidationError(
-                    "Administrator is already assigned to another pickup slot during this time."
-                )
+                if (new_start_datetime < existing_end_datetime and new_end_datetime > existing_start_datetime):
+                    raise ValidationError(
+                        "A pickup slot conflict exists with another slot in the same company."
+                    )
 
         # No conflicts, save the slot
         serializer.save(administrator=administrator, company=administrator.company)
@@ -158,6 +186,7 @@ class PickupSlotReserveView(generics.UpdateAPIView):
         return Response({"detail": "Slot reserved successfully"})
     
 class ReservedUsersListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     serializer_class = ReservedUsersSerializer
 
     def get_queryset(self):
@@ -194,6 +223,7 @@ class ReservedPickupSlotsView(generics.ListAPIView):
         )
         
 class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     def destroy(self, request, *args, **kwargs):
         company_id = kwargs.get('company_id')
         equipment_id = kwargs.get('equipment_id')
@@ -204,6 +234,27 @@ class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
                 company_id=company_id, equipment_id=equipment_id
             )
 
+            pickup_slots = PickupSlot.objects.filter(
+                company_id=company_id,
+                reserved_by__isnull=False,
+                is_expired=False,
+                is_picked_up=False
+            )
+
+            reserved_quantity = 0
+            for slot in pickup_slots:
+                if slot.reserved_equipment and isinstance(slot.reserved_equipment, list):
+                    for item in slot.reserved_equipment:
+                        if item.get('equipment_id') == equipment_id:
+                            reserved_quantity += item.get('quantity')
+
+            available_quantity = company_equipment.quantity - reserved_quantity
+
+            if quantity_to_remove > available_quantity:
+                return Response({
+                    "error": f"You cannot remove {quantity_to_remove} units. Only {available_quantity} units are available for removal."
+                }, status=400)
+            
             if company_equipment.quantity > quantity_to_remove:
                 company_equipment.quantity -= quantity_to_remove
                 company_equipment.save()
@@ -218,6 +269,7 @@ class RemoveCompanyEquipmentByQuantityView(generics.DestroyAPIView):
             return Response({"error": "Internal Server Error"}, status=500)
         
 class ConfirmPickupView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     queryset = PickupSlot.objects.all()
     serializer_class = PickupSlotSerializer 
 
@@ -252,7 +304,7 @@ class ConfirmPickupView(generics.UpdateAPIView):
             pickup_slot.is_picked_up = True
             pickup_slot.save() 
 
-            # self.send_confirmation_email(pickup_slot)
+            self.send_confirmation_email(pickup_slot, company)
 
             return Response({"detail": "Pickup confirmed and equipment updated"}, status=200)
 
@@ -262,10 +314,10 @@ class ConfirmPickupView(generics.UpdateAPIView):
             print(f"Error during confirming pickup: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
 
-    def send_confirmation_email(self, pickup_slot):
+    def send_confirmation_email(self, pickup_slot, company):
         user_email = pickup_slot.reserved_by.email
         subject = "Equipment Pickup Confirmation"
-        message = f"Dear {pickup_slot.reserved_by.name},\n\nYou have successfully picked up the following equipment: {pickup_slot.reserved_equipment}. Thank you!\n\nBest regards,\nYour Company."
+        message = f"Dear {pickup_slot.reserved_by.first_name},\n\nYou have successfully picked up the equipment. Thank you!\n\nBest regards,\nYour {company.company_name}."
 
         send_mail(
             subject,
@@ -381,3 +433,18 @@ class CompanyAnalyticsView(generics.ListAPIView):
             return Response(data)
         except Company.DoesNotExist:
             return Response({"error": "Company not found"}, status=404)
+        
+class UsersReservedListView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]  
+      
+    def get(self, request, *args, **kwargs):
+        company_admin = CompanyAdministrator.objects.get(account=request.user)
+        company = company_admin.company
+        
+        reserved_slots = PickupSlot.objects.filter(company=company, reserved_by__isnull=False)
+
+        reserved_users = Account.objects.filter(reserved_slots__in=reserved_slots).distinct()
+
+        users_data = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email} for user in reserved_users]
+
+        return Response(users_data)

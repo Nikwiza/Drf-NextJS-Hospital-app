@@ -9,7 +9,7 @@ import { LatLngTuple } from 'leaflet';
 import iconMarker from 'leaflet/dist/images/marker-icon.png'
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-
+import Navbar from '../app/Navbar';
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
@@ -17,11 +17,9 @@ const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ss
 
 interface CompanyEquipment {
   id: number;
-  equipment: {
-    equipment_name: string;
-    description: string;
-    picture_url: string;
-  }
+  name: string;
+  description: string;
+  picture_url: string;
   quantity: number;
 }
 
@@ -35,7 +33,8 @@ interface PickupSlot {
 
 interface Account {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email:string;
 }
 
@@ -87,6 +86,12 @@ const CompanyProfile: React.FC = () => {
       setMessage(null);
     }, 3000);
   };
+
+  const handleViewCompanyAnalytics = () => {
+    if (company) {
+      router.push(`/company-analytics/${company.id}`); 
+    }
+};
 
   const handleCreatePickupSlot = () => {
     setShowPickupSlotForm(true);
@@ -168,8 +173,8 @@ const CompanyProfile: React.FC = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          if (response.status === 400 && errorData[0] === "Administrator is already assigned to another pickup slot during this time.") {
-            displayMessage('Administrator is already assigned to another pickup slot during this time.', 'text-red-500');
+          if (response.status === 400 && errorData[0] === "A pickup slot conflict exists with another slot in the same company.") {
+            displayMessage("A pickup slot conflict exists with another slot in the same company.", 'text-red-500');
           } else {
             console.log('Failed to create pickup slot. Please try again.', 'text-red-500');
           }
@@ -283,7 +288,9 @@ const CompanyProfile: React.FC = () => {
   });
 
   return (
-    <div className="w-full mx-auto p-8 mt-8 bg-slate-800 border rounded-lg shadow-lg">
+    <div>
+      <Navbar/>
+      <div className="w-full mx-auto p-8 bg-slate-800 border rounded-lg shadow-lg">
       <h1 className="text-4xl font-bold mb-6 text-white text-center">{company.company_name}</h1>
       <div className="grid grid-cols-2 gap-8">
         <div>
@@ -317,7 +324,7 @@ const CompanyProfile: React.FC = () => {
               <ul className="list-disc list-inside text-white">
                 {company.pickup_slots.map((slot) => (
                   <li key={slot.id}>
-                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator?.account?.name}
+                    {slot.date} at {slot.time} for {slot.duration} - {slot.administrator?.account?.first_name} {slot.administrator?.account?.last_name}
                   </li>
                 ))}
               </ul>
@@ -331,7 +338,8 @@ const CompanyProfile: React.FC = () => {
             {company.administrators.length > 0 ? (
               company.administrators.map((admin) => (
                 <div key={admin.id} className="mb-2 text-white">
-                  <p><strong>Name:</strong> {admin.account.name}</p>
+                  <p><strong>First Name:</strong> {admin.account.first_name}</p>
+                  <p><strong>Last Name:</strong> {admin.account.last_name}</p>
                   <p><strong>Email:</strong> {admin.account.email}</p>
                 </div>
               ))
@@ -350,20 +358,24 @@ const CompanyProfile: React.FC = () => {
             </ul>
           </div>
           <div className="mb-4">
+            {isCompanyAdmin && (
             <button 
-              onClick={() => router.push(`/company-equipment/${company.id}`)} 
-              className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+            onClick={() => router.push(`/company-equipment/${company.id}`)} 
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
               Update Company Equipment
             </button>
+            )}
           </div>
           <div className='mb-4'>
+            {isCompanyAdmin && (
             <button
             onClick={() => router.push(`/update-company/${company.id}`)}
             className='bg-blue-500 text-white font-bold py-2 px-4 rounded'>
               Edit Company Info
             </button>
+            )}
           </div>
-          <div className='mb-8'>
+          <div className='mb-4'>
             {isCompanyAdmin && (
             <button onClick={handleCreatePickupSlot}
             className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
@@ -384,7 +396,7 @@ const CompanyProfile: React.FC = () => {
                   <option value="">Select an administrator</option>
                   {company.administrators.map((admin) => (
                     <option key={admin.id} value={admin.id}>
-                      {admin.account.name}
+                      {admin.account.first_name} {admin.account.last_name}
                     </option>
                   ))}
                 </select>
@@ -428,8 +440,15 @@ const CompanyProfile: React.FC = () => {
               </button>
             </form>
           )}
+          <div className='mb-4'>
+            {isCompanyAdmin && (
+            <button onClick={handleViewCompanyAnalytics}
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+              Company Business Analytics
+            </button>
+            )}
+          </div>
         </div>
-
         <div>
           <h2 className="text-2xl font-bold mb-4 text-gray-300">Equipment List</h2>
           {company.equipment && company.equipment.length > 0 ? (
@@ -442,6 +461,8 @@ const CompanyProfile: React.FC = () => {
         </div>
       </div>
     </div>
+    </div>
+    
   );
 };
 

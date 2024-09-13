@@ -1,25 +1,28 @@
 "use client";
-import React from "react";
+import React, { useState, useContext } from "react";
 import Link from "next/link";
-
-
-import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { FaBars } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import Image from "next/image";
 import AuthContext from "@/context/AuthContext";
-import { useContext } from "react";
-import { redirect } from "next/navigation";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logoutUser, user, userInfo } = useContext(AuthContext);
 
-  const navigation = [
+  // Define navigation based on user type (company admin or regular user)
+  const companyAdminNavigation = [
+    { name: "Home", href: "/company-admin-homepage" },
+    { name: "Profile", href: "/company-admin-profile" },
+  ];
+
+  const regularNavigation = [
     { name: "Home", href: "/" },
     { name: "Dashboard", href: "/dashboard" },
   ];
+
+  const navigation = userInfo?.is_company_admin ? companyAdminNavigation : regularNavigation;
 
   return (
     <>
@@ -46,7 +49,6 @@ const Navbar = () => {
             ))}
           </div>
           <div className="flex flex-1 items-center justify-end gap-x-6">
-            
             {(user == null) ? (
               <>
                 <Link
@@ -64,15 +66,12 @@ const Navbar = () => {
               </>
             ) : (
               <>
-
                 <span className="ml-10 text-sm">{userInfo && userInfo!.email}</span>
-
                 <Link
                   href='/login'
                   onClick={() => {
-                    logoutUser()
-                    setMobileMenuOpen(false)
-
+                    logoutUser();
+                    setMobileMenuOpen(false);
                   }}
                   className="hidden lg:block lg:text-sm lg:font-semibold lg:leading-6 lg:text-gray-900"
                 >
@@ -115,8 +114,8 @@ const Navbar = () => {
                 <Link
                   href='/login'
                   onClick={() => {
-                    logoutUser()
-                    setMobileMenuOpen(false)
+                    logoutUser();
+                    setMobileMenuOpen(false);
                   }}
                   className="ml-auto rounded-md bg-black border border-1 border-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >

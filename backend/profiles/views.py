@@ -1,10 +1,20 @@
 from django.http import JsonResponse
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from .models import CompanyAdministrator
 from .serializers import UserRegisterSerializer, AdminRegisterSerializer, CompanyAdminRegisterSerializer, CompanyAdministratorSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework import generics
-from profiles.permissions import IsSystemAdmin, IsEmailConfirmed
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from profiles.permissions import IsCompanyAdmin, IsSystemAdmin, IsEmailConfirmed
+from django.utils.decorators import method_decorator
+from django.contrib.auth.views import PasswordChangeView
+
 
 
 @api_view(['POST'])
@@ -39,11 +49,27 @@ def createCompanyAdminAccount(request):
     
 
 class CompanyAdminProfileView(generics.RetrieveUpdateAPIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsCompanyAdmin]
     serializer_class = CompanyAdministratorSerializer
-    
+        
     def get_object(self):
         return self.request.user.companyadministrator
-    
 
-    
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        form = PasswordChangeForm(user=request.user, data=request.data)
+
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            company_admin = user.companyadministrator
+            company_admin.is_password_changed = True
+            company_admin.save()
+            return Response({'status': 'password_changed'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        return Response({'status': 'invalid_request'}, status=status.HTTP_400_BAD_REQUEST)
