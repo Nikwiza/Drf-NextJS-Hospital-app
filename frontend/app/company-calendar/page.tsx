@@ -73,7 +73,12 @@ useEffect(() => {
       },
   }
   )
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok){
+        return []
+      }
+      return response.json()
+    })
     .then((data: Reservation[]) =>
       setEventList(data)
     );
@@ -81,6 +86,9 @@ useEffect(() => {
 
 
 const eventListTransformed = useMemo(() => {
+  if (!eventList){
+    return []
+  }
   return eventList.map((reservation) => {
     const { date, time, duration } = reservation;
 
