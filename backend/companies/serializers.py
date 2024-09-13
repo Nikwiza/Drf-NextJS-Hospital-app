@@ -10,8 +10,8 @@ from equipment.models import Equipment
 from profiles.serializers import SimpleAccountSerializer, SimpleCompanyAdministratorSerializer
 
 class SimplePickupSlotSerializer(serializers.ModelSerializer):
-    administrator = SimpleCompanyAdministratorSerializer()  # Use the simple serializer for CompanyAdministrator
-    reserved_by = SimpleAccountSerializer()  # Use the simple serializer for Account
+    administrator = SimpleCompanyAdministratorSerializer()  
+    reserved_by = SimpleAccountSerializer()  
 
     class Meta:
         model = PickupSlot
@@ -147,7 +147,6 @@ class PickupSlotSerializerCreate(serializers.ModelSerializer):
         representation['administrator'] = CompanyAdministratorSerializer(instance.administrator).data
 
         return representation
-
     
 
     

@@ -15,6 +15,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     is_company_admin = models.BooleanField(default=False)
+    penalty_points = models.IntegerField(default=0)
+    reward_points = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']

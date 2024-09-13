@@ -120,7 +120,13 @@ class CompanyAdministratorSerializer(serializers.ModelSerializer):
 class SimpleAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'email']
+
+class SimpleSystemAdminSerializer(serializers.ModelSerializer):
+    account = SimpleAccountSerializer
+    class Meta:
+        model = CompanyAdministrator
+        fields = ['id', 'account']
 
 
 class SimpleCompanyAdministratorSerializer(serializers.ModelSerializer):
