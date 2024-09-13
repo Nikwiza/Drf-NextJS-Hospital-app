@@ -331,7 +331,7 @@ class ConfirmPickupView(generics.UpdateAPIView):
     def send_confirmation_email(self, pickup_slot, company):
         user_email = pickup_slot.reserved_by.email
         subject = "Equipment Pickup Confirmation"
-        message = f"Dear {pickup_slot.reserved_by.first_name},\n\nYou have successfully picked up the equipment. Thank you!\n\nBest regards,\nYour {company.company_name}."
+        message = f"Dear {pickup_slot.reserved_by.name},\n\nYou have successfully picked up the equipment. Thank you!\n\nBest regards,\nYour {company.company_name}."
 
         send_mail(
             subject,
@@ -459,6 +459,6 @@ class UsersReservedListView(generics.GenericAPIView):
 
         reserved_users = Account.objects.filter(reserved_slots__in=reserved_slots).distinct()
 
-        users_data = [{'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email} for user in reserved_users]
+        users_data = [{'id': user.id, 'name': user.name, 'last_name': user.last_name, 'email': user.email} for user in reserved_users]
 
         return Response(users_data)

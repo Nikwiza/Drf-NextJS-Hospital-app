@@ -18,7 +18,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('password', 
-                  'email', 'first_name', 'last_name', 'phone_number')
+                  'email', 'name', 'last_name', 'phone_number')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -28,7 +28,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = Account.objects.create_user(
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
+            name=validated_data['name'],
             last_name=validated_data['last_name'],
             phone_number=validated_data['phone_number'],
             password=validated_data['password']
@@ -49,7 +49,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('password', 
-                  'email', 'first_name', 'last_name', 'phone_number')
+                  'email', 'name', 'last_name', 'phone_number')
     extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
@@ -59,7 +59,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = Account.objects.create_admin(
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
+            name=validated_data['name'],
             last_name=validated_data['last_name'],
             phone_number=validated_data['phone_number'],
             password=validated_data['password']
@@ -79,7 +79,7 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ('email', 'first_name', 'last_name', 'phone_number', 'password', 'company')
+        fields = ('email', 'name', 'last_name', 'phone_number', 'password', 'company')
 
     def create(self, validated_data):
         # Extract the company before creating the Account instance
@@ -87,7 +87,7 @@ class CompanyAdminRegisterSerializer(serializers.ModelSerializer):
         # Create the Account instance
         user = Account.objects.create_company_admin(
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
+            name=validated_data['name'],
             last_name=validated_data['last_name'],
             phone_number=validated_data['phone_number'],
             password=validated_data['password']
