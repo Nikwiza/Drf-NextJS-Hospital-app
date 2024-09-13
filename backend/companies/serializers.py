@@ -7,7 +7,27 @@ from rest_framework import serializers
 from geopy.geocoders import Nominatim
 from profiles.serializers import CompanyAdministratorSerializer
 import json
+from equipment.models import Equipment
+from profiles.serializers import SimpleAccountSerializer, SimpleCompanyAdministratorSerializer
 
+class SimplePickupSlotSerializer(serializers.ModelSerializer):
+    administrator = SimpleCompanyAdministratorSerializer()  
+    reserved_by = SimpleAccountSerializer()  
+
+    class Meta:
+        model = PickupSlot
+        fields = [
+            'id',
+            'administrator',
+            'company',
+            'date',
+            'time',
+            'duration',
+            'reserved_by',
+            'is_expired',
+            'is_picked_up',
+            'reserved_equipment'
+        ]
 
 class CompanyFullSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,6 +40,30 @@ class CompanyEquipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyEquipment
         fields = ['id', 'equipment', 'quantity']
+
+class CompanySimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['id', 'company_name'] 
+
+class EquipmentWithCompaniesListSerializer(serializers.ModelSerializer):
+    """Serializer to display equipment along with the companies that own them."""
+    companies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Equipment
+        fields = ['id', 'equipment_name', 'equipment_type', 'description', 'picture_url', 'price', 'companies']
+
+    def get_companies(self, obj):
+        # Fetch CompanyEquipment instances related to the current equipment
+        company_equipments = CompanyEquipment.objects.filter(equipment=obj)
+        # Use the CompanySimpleSerializer to serialize the companies
+        return [
+            {
+                'company': CompanySimpleSerializer(company_equipment.company).data,
+                'quantity': company_equipment.quantity
+            } for company_equipment in company_equipments
+        ]
 
 class CompanyProfileSerializer(serializers.ModelSerializer):
     equipment = serializers.SerializerMethodField()
@@ -136,7 +180,6 @@ class PickupSlotSerializerCreate(serializers.ModelSerializer):
         representation['administrator'] = CompanyAdministratorSerializer(instance.administrator).data
 
         return representation
-
     
 
     

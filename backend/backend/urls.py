@@ -29,7 +29,8 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('company/', include('companies.urls')),
     path('appointment/', include('appointments.urls')),
-    path('equipment/', include('equipment.urls'))
+    path('equipment/', include('equipment.urls')),
+    path('complaints/', include('complaints.urls')),
 ]
 
 if settings.DEBUG:

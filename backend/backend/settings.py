@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'profiles',
     'equipment',
     'appointments',
+    'complaints',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,67 @@
+[
+    {
+      "model": "complaints.Comment",
+      "pk": 1,
+      "fields": {
+        "comment": "The reserved equipment was not available as scheduled.",
+        "created_at": "2024-09-10T12:00:00Z"
+      }
+    },
+    {
+      "model": "complaints.Comment",
+      "pk": 2,
+      "fields": {
+        "comment": "The staff was late to deliver the equipment.",
+        "created_at": "2024-09-10T12:00:00Z"
+      }
+    },
+    {
+      "model": "complaints.Comment",
+      "pk": 3,
+      "fields": {
+        "comment": "The equipment was damaged upon delivery.",
+        "created_at": "2024-09-10T12:00:00Z"
+      }
+    },
+    {
+      "model": "complaints.Comment",
+      "pk": 4,
+      "fields": {
+        "comment": "The reserved time slot was delayed without prior notice.",
+        "created_at": "2024-09-10T12:00:00Z"
+      }
+    },
+    {
+      "model": "complaints.UserComplaint",
+      "pk": 1,
+      "fields": {
+        "reservation": 1, 
+        "comments": 1
+      }
+    },
+    {
+      "model": "complaints.UserComplaint",
+      "pk": 2,
+      "fields": {
+        "reservation": 2,  
+        "comments": 2
+      }
+    },
+    {
+      "model": "complaints.UserComplaint",
+      "pk": 3,
+      "fields": {
+        "reservation": 1,  
+        "comments": 3
+      }
+    },
+    {
+      "model": "complaints.UserComplaint",
+      "pk": 4,
+      "fields": {
+        "reservation": 1,  
+        "comments": 4
+      }
+    }
+  ]
+  

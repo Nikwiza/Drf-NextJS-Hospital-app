@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CompanyAnalyticsView, CompanyListView, CompanyProfileView, CompanyUpdateView, ConfirmPickupView, EquipmentListView, AddEquipmentToCompanyView, RemoveEquipmentFromCompanyView, CreatePickupSlotView, PickupSlotReserveView, PickupSlotListView, ReservedPickupSlotsView, ReservedUsersListView, UsersReservedListView, WorkCalendarListView
+from .views import WorkCalendarCompanyListView, CompanyAnalyticsView, CompanyListView, CompanyProfileView, CompanyUpdateView, ConfirmPickupView, EquipmentListView, AddEquipmentToCompanyView, RemoveEquipmentFromCompanyView, CreatePickupSlotView, PickupSlotReserveView, PickupSlotListView, ReservedPickupSlotsView, ReservedUsersListView, WorkCalendarListView, UsersReservedListView
 
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
     path('remove-equipment/<int:equipment_pk>/', RemoveEquipmentFromCompanyView.as_view(), name='remove-equipment'),
     path('pickup-slots/', PickupSlotListView.as_view(), name='pickup_slots'),
     path('pickup-slots/create/', CreatePickupSlotView.as_view(), name='pickup-slot-create'),
+    path('company-calendar/', WorkCalendarCompanyListView.as_view(), name='company-calendar'),
     path('pickup-slots/<int:pk>/reserve/', PickupSlotReserveView.as_view(), name='pickup-slot-reserve'),
     path('reservations/<int:pk>/', ReservedUsersListView.as_view(), name='reservations'),
     path('work-calendar/<int:pk>/', WorkCalendarListView.as_view(), name='work-calendar'),
@@ -19,3 +20,4 @@ urlpatterns = [
     path('analytics/<int:pk>/', CompanyAnalyticsView.as_view(), name='company-analytics'),
     path('reserved-users-list/', UsersReservedListView.as_view(), name='reserved-user-list'),
 ]
+# WorkCalendarCompanyListView

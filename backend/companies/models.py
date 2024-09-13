@@ -17,6 +17,7 @@ class Company(models.Model):
         default=0.00,
         validators=[MinValueValidator(0.00), MaxValueValidator(5.00)]
     )
+    # Think about this
     business_hours = models.JSONField(default=dict)
 
     def __str__(self):
@@ -31,6 +32,7 @@ class PickupSlot(models.Model):
     reserved_by = models.ForeignKey('user.Account', on_delete=models.SET_NULL, null=True, blank=True, related_name='reserved_slots')
     is_expired = models.BooleanField(default=False)
     is_picked_up = models.BooleanField(default=False)
+    #TODO: probably not, we should make this a list of equip
     reserved_equipment = JSONField(blank=True, null=True)
 
     def update_expiration_status(self):
